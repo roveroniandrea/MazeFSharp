@@ -9,7 +9,6 @@ open Gfx
 [< NoEquality; NoComparison >]
 type state = {
     player : sprite
-    asteroidi : sprite list
 }
 
 
