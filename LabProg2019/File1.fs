@@ -60,7 +60,7 @@ type Maze (W:int, H:int) =
         let mutable resultCells: MazeCell list = []
 
         let addIfInsideMaze (position:Position) =
-            if position.isInsideMaze w h || ((position.X = endPosition.X)&&(position.Y = endPosition.Y))then resultCells <- resultCells @ [privateGetCell position]
+            if position.isInsideMaze w h || ((position.X = endPosition.X)&&(position.Y = endPosition.Y || position.Y = (endPosition.Y + 1)))then resultCells <- resultCells @ [privateGetCell position]
         //est
         let direction = new Direction(-1, 0)
         addIfInsideMaze (cell.position.getTranslated(direction))
@@ -95,97 +95,101 @@ type Maze (W:int, H:int) =
         stringResult
 
         //celle non visitate e non bloccate
-    let generateMaze () =
-                        let startPosition = new Position(0,1)
-                        let endPosition = new Position (w-1,29)
-                        let startCell = privateGetCell startPosition
-                        startCell.isVisited <- true
-                        startCell.isWall <- false
-                        let mutable mazeSolution:MazeCell list = [startCell]
-                        let mutable blockedCells:MazeCell list = []
-                        let mutable exitFound = false
-                        let myRandom = Random()
-                        //let mutable direction = new Direction(1, 0)
-                        (*
-                        while currentPosition.isInsideMaze w h do
-                            let currentCell:MazeCell = privateGetCell currentPosition
-                            currentCell.isVisited <- true
-                            currentCell.isWall <- false
-                            currentPosition <- currentPosition.getTranslated(direction)*)
-                        let mutable stessoIndexPer = myRandom.Next(3, 5)
-                        let mutable currentDirection = new Direction(1, 0)
-                        
+    let rec generateMaze (startPosition:Position, endPosition:Position, ripetiNVolte:int) =
+        if ripetiNVolte < 1 then ignore()
+        else
+            //let startPosition = new Position(0,1)
+            //let endPosition = new Position (w-1,29)
+            let startCell = privateGetCell startPosition
+            startCell.isVisited <- true
+            startCell.isWall <- false
+            let mutable mazeSolution:MazeCell list = [startCell]
+            let mutable blockedCells:MazeCell list = []
+            let mutable exitFound = false
+            let myRandom = Random()
+            //let mutable direction = new Direction(1, 0)
+            (*
+            while currentPosition.isInsideMaze w h do
+                let currentCell:MazeCell = privateGetCell currentPosition
+                currentCell.isVisited <- true
+                currentCell.isWall <- false
+                currentPosition <- currentPosition.getTranslated(direction)*)
+            let mutable stessoIndexPer = myRandom.Next(3, 5)
+            let mutable currentDirection = new Direction(1, 0)
+            let mutable mazeCompleatelyExplored = false
 
-                        while not(exitFound) do
-                            let adiacentCells:MazeCell list = privateGetAdiacentCells(privateGetCell mazeSolution.Head.position) (endPosition)
-                            let notVisitedCells = List.filter (fun (cell:MazeCell) -> not(cell.isVisited)) adiacentCells
-                            let mutable notBlockedList = []
-                            for i=0 to notVisitedCells.Length - 1 do
-                                if (not(List.contains notVisitedCells.[i] blockedCells)) then
-                                    notBlockedList <- notVisitedCells.[i]::notBlockedList
+            while not((*exitFound ||*) mazeCompleatelyExplored) do
+                if mazeSolution.Length = 0 then mazeCompleatelyExplored <- true
+                else
+                    let adiacentCells:MazeCell list = privateGetAdiacentCells(privateGetCell mazeSolution.Head.position) (endPosition)
+                    let notVisitedCells = List.filter (fun (cell:MazeCell) -> not(cell.isVisited)) adiacentCells
+                    let mutable notBlockedList = []
+                    for i=0 to notVisitedCells.Length - 1 do
+                        if (not(List.contains notVisitedCells.[i] blockedCells)) then
+                            notBlockedList <- notVisitedCells.[i]::notBlockedList
                             
-                            if notVisitedCells.Length > 0 && notBlockedList.Length > 0 then
-                                let mutable nextCell = notBlockedList.[myRandom.Next(notBlockedList.Length)]
-                                if stessoIndexPer <= 0 then
-                                    nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
-                                    currentDirection <- new Direction(nextCell.position.X - mazeSolution.Head.position.X, nextCell.position.Y - mazeSolution.Head.position.Y)
-                                    stessoIndexPer <- myRandom.Next(3, 5)
-                                else
-                                    let containsStessaDirezione = List.exists (fun (cell:MazeCell) -> (cell.position.X - mazeSolution.Head.position.X) = currentDirection.dirX && (cell.position.Y - mazeSolution.Head.position.Y) = currentDirection.dirY) notBlockedList
-                                    if containsStessaDirezione then
-                                        nextCell <- List.find (fun (cell:MazeCell) -> (cell.position.X - mazeSolution.Head.position.X) = currentDirection.dirX && (cell.position.Y - mazeSolution.Head.position.Y) = currentDirection.dirY) notBlockedList
-                                    else
-                                        nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
-                                        currentDirection <- new Direction(nextCell.position.X - mazeSolution.Head.position.X, nextCell.position.Y - mazeSolution.Head.position.Y)
-                                        stessoIndexPer <- myRandom.Next(3, 5)
+                    if notVisitedCells.Length > 0 && notBlockedList.Length > 0 then
+                        let mutable nextCell = notBlockedList.[myRandom.Next(notBlockedList.Length)]
+                        if stessoIndexPer <= 0 then
+                            nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
+                            currentDirection <- new Direction(nextCell.position.X - mazeSolution.Head.position.X, nextCell.position.Y - mazeSolution.Head.position.Y)
+                            stessoIndexPer <- myRandom.Next(3, 5)
+                        else
+                            let containsStessaDirezione = List.exists (fun (cell:MazeCell) -> (cell.position.X - mazeSolution.Head.position.X) = currentDirection.dirX && (cell.position.Y - mazeSolution.Head.position.Y) = currentDirection.dirY) notBlockedList
+                            if containsStessaDirezione then
+                                nextCell <- List.find (fun (cell:MazeCell) -> (cell.position.X - mazeSolution.Head.position.X) = currentDirection.dirX && (cell.position.Y - mazeSolution.Head.position.Y) = currentDirection.dirY) notBlockedList
+                            else
+                                nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
+                                currentDirection <- new Direction(nextCell.position.X - mazeSolution.Head.position.X, nextCell.position.Y - mazeSolution.Head.position.Y)
+                                stessoIndexPer <- myRandom.Next(3, 5)
                                 
 
 
 
-                                stessoIndexPer <- stessoIndexPer - 1
-                                blockedCells <-  (List.filter (fun (cell:MazeCell) -> cell <> nextCell) notVisitedCells) @ blockedCells
-                                nextCell.isVisited <- true
-                                nextCell.isWall <- false
-                                mazeSolution <- nextCell::mazeSolution
+                        stessoIndexPer <- stessoIndexPer - 1
+                        blockedCells <-  (List.filter (fun (cell:MazeCell) -> cell <> nextCell) notVisitedCells) @ blockedCells
+                        nextCell.isVisited <- true
+                        nextCell.isWall <- false
+                        mazeSolution <- nextCell::mazeSolution
  
                                 
                                 
 
-                                if nextCell.position.X = (w - 1) && nextCell.position.Y = (29) &&  notBlockedList.Length = 0 then exitFound <- true
-                            else
-                                let mutable sbloccoCellaIndex = -1
-                                for i=0 to notVisitedCells.Length - 1 do
-                                    if List.contains notVisitedCells.[i] blockedCells then
-                                        let adiacentOfBlockedCell = privateGetAdiacentCells notVisitedCells.[i] endPosition
-                                        let visited = List.filter (fun (cell:MazeCell)-> cell.isVisited) adiacentOfBlockedCell
-                                        if visited.Length <= 1 then
-                                            sbloccoCellaIndex <- i
-                                if sbloccoCellaIndex <> -1 then
-                                    let cellaDaSbloccare:MazeCell = notVisitedCells.[sbloccoCellaIndex]
-                                    cellaDaSbloccare.isVisited <- true
-                                    cellaDaSbloccare.isWall <- false
-                                    mazeSolution <- cellaDaSbloccare::mazeSolution
+                        if nextCell.position.X = (w - 1) && nextCell.position.Y = (29) &&  notBlockedList.Length = 0 then exitFound <- true
+                    else
+                        let mutable sbloccoCellaIndex = -1
+                        for i=0 to notVisitedCells.Length - 1 do
+                            if List.contains notVisitedCells.[i] blockedCells then
+                                let adiacentOfBlockedCell = privateGetAdiacentCells notVisitedCells.[i] endPosition
+                                let visited = List.filter (fun (cell:MazeCell)-> cell.isVisited) adiacentOfBlockedCell
+                                if visited.Length <= 1 then
+                                    sbloccoCellaIndex <- i
+                        if sbloccoCellaIndex <> -1 then
+                            let cellaDaSbloccare:MazeCell = notVisitedCells.[sbloccoCellaIndex]
+                            cellaDaSbloccare.isVisited <- true
+                            cellaDaSbloccare.isWall <- false
+                            mazeSolution <- cellaDaSbloccare::mazeSolution
                                     
                                     
                                     
-                                    //let celleNonVisitateNeBloccate  =   List.filter (fun (cell:MazeCell) -> cell.isWall) notBlockedList
+                            //let celleNonVisitateNeBloccate  =   List.filter (fun (cell:MazeCell) -> cell.isWall) notBlockedList
 
-                                    if cellaDaSbloccare.position.X = (w - 1) && cellaDaSbloccare.position.Y = (29) && notBlockedList.Length = 0 then exitFound <- true
-                                    blockedCells <- List.filter (fun (cell:MazeCell)-> cell <> cellaDaSbloccare) blockedCells
-                                else
-                                    mazeSolution <- mazeSolution.Tail
+                            if cellaDaSbloccare.position.X = (w - 1) && cellaDaSbloccare.position.Y = (29) && notBlockedList.Length = 0 then exitFound <- true
+                            blockedCells <- List.filter (fun (cell:MazeCell)-> cell <> cellaDaSbloccare) blockedCells
+                        else
+                            mazeSolution <- mazeSolution.Tail
                             
-                        privateMazeSolution <- mazeSolution
-                        privateBlockedCells <- blockedCells
-                        (*
-                        let str = privateGenMazeString()
-                        printfn "%s" str
-                        Threading.Thread.Sleep(1000)
-                        Console.Clear()*)
+                privateMazeSolution <- mazeSolution
+                privateBlockedCells <- blockedCells
+                (*
+                let str = privateGenMazeString()
+                printfn "%s" str
+                Threading.Thread.Sleep(1000)
+                Console.Clear()*)
+                generateMaze(endPosition, startPosition, ripetiNVolte - 1)
 
 
-
-    do generateMaze()
+    do generateMaze(new Position(0,1), new Position (w-1,29), 2)
     member this.W with get() = w
     member this.H with get() = h
     member this.maze with get() = mutableMaze
@@ -203,49 +207,55 @@ let H = 30
 
 let main () =       
     //let engine = new engine (W, H)
-    let myMaze:Maze = new Maze(50, 50)
-    let str = myMaze.generateMazeString()
+    let rec nextLabirinto () = 
+        let myMaze:Maze = new Maze(50, 50)
+        let str = myMaze.generateMazeString()
 
 
-    //stampo il labirinto
-    for i=0 to str.Length - 1 do
-        if str.[i] = 'A' then
-            printf "  "//strada
-        elif str.[i] = 'S' then
-            Console.ForegroundColor <- ConsoleColor.Green
-            printf "██" 
-            Console.ResetColor ()
-        elif str.[i] = 'E' then
-            Console.ForegroundColor <- ConsoleColor.Red
-            printf "██"
-            Console.ResetColor ()
-        else
-            printf "%c" str.[i]
-    printfn "\n \n \n \n \n \n \n \n"
+        //stampo il labirinto
+        for i=0 to str.Length - 1 do
+            if str.[i] = 'A' then
+                printf "  "//strada
+            elif str.[i] = 'S' then
+                Console.ForegroundColor <- ConsoleColor.Green
+                printf "██" 
+                Console.ResetColor ()
+            elif str.[i] = 'E' then
+                Console.ForegroundColor <- ConsoleColor.Red
+                printf "██"
+                Console.ResetColor ()
+            else
+                printf "%c" str.[i]
+        //printfn "\n \n \n \n \n \n \n \n"
 
-    printf "Vuoi vedere la soluzione (si/no): "
-    let soluzione = Console.ReadLine()
-    printfn "\n \n \n \n \n \n \n \n"
+        printf "Vuoi vedere la soluzione (si/no/n = next labirinto): "
+        let soluzione = Console.ReadLine()
+        //printfn "\n \n \n \n \n \n \n \n"
+        printfn ""
     
-    if(soluzione = "si")
-        then    
-            //stampo il labirinto con soluzione
-            for i=0 to str.Length - 1 do
-                if str.[i] = 'A' 
-                then 
-                    Console.ForegroundColor <- ConsoleColor.DarkCyan
-                    printf "██"//soluzione di colore rosso
-                    Console.ResetColor ()
-                elif str.[i] = 'S' then
-                    Console.ForegroundColor <- ConsoleColor.Green
-                    printf "██" 
-                    Console.ResetColor ()
-                elif str.[i] = 'E' then
-                    Console.ForegroundColor <- ConsoleColor.Red
-                    printf "██"
-                    Console.ResetColor ()
-                else
-                    printf "%c" str.[i]
+        if(soluzione = "si")
+            then    
+                //stampo il labirinto con soluzione
+                for i=0 to str.Length - 1 do
+                    if str.[i] = 'A' 
+                    then 
+                        Console.ForegroundColor <- ConsoleColor.DarkCyan
+                        printf "██"//soluzione di colore rosso
+                        Console.ResetColor ()
+                    elif str.[i] = 'S' then
+                        Console.ForegroundColor <- ConsoleColor.Green
+                        printf "██" 
+                        Console.ResetColor ()
+                    elif str.[i] = 'E' then
+                        Console.ForegroundColor <- ConsoleColor.Red
+                        printf "██"
+                        Console.ResetColor ()
+                    else
+                        printf "%c" str.[i]
+        elif soluzione = "n" then 
+                                    Console.Clear()
+                                    nextLabirinto()
+    in nextLabirinto()
             
 
     
