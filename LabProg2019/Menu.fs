@@ -56,7 +56,7 @@ let init ()  =
                                  match key.KeyChar with 
                                       'w' -> 0., -2.
                                     | 's' -> 0., 2.
-                                    | enter -> ignore( Prova.main() ) 0.,0.
+                                   
                                     | _   -> 0., 0.
                 st.indicatore.move_by(dx, dy)
                 

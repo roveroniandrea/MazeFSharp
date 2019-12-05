@@ -29,7 +29,7 @@ let main_game () =
     client.Connect ()
     Log <- new remote_logger (client)
 
-    Prova.main()
+    menu.init()
     0
 
 // log mode (server)
