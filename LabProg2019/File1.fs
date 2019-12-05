@@ -4,13 +4,87 @@
 open System
 open Engine
 open Gfx
+
+let printMenu =
+    Console.ForegroundColor <- ConsoleColor.Green
     
+    printfn "
+             ████  ████████████████████████
+             ██                          ██
+             ██  ██████████  ██████████  ██
+             ██  ██  ██  ██  ██      ██  ██
+             ██  ██  ██  ██  ██████████  ██
+             ██  ██  ██  ██  ██      ██  ██
+             ██  ██  ██  ██  ██      ██  ██
+             ██                          ██
+             ██  ██████████  ██████████  ██
+             ██          ██  ██          ██
+             ██  ██████████  ██████████  ██
+             ██  ██          ██          ██
+             ██  ██████████  ██████████  ██
+             ██                          ██
+             ██████████████████  ██████████
+
+
+    " 
+    printfn"
+            88888888888888888888888888888888888888888888888888888888888888888888888
+            88.._|      | `-.  | `.  -_-_ _-_  _-  _- -_ -  .'|   |.'|     |  _..88
+            88   `-.._  |    |`!  |`.  -_ -__ -_ _- _-_-  .'  |.;'   |   _.!-'|  88
+            88      | `-!._  |  `;!  ;. _______________ ,'| .-' |   _!.i'     |  88
+            88..__  |     |`-!._ | `.| |_______________||.''|  _!.;'   |     _|..88
+            88   |``'..__ |    |`';.| i|_|MMMMMMMMMMM|_|'| _!-|   |   _|..-|'    88
+            88   |      |``--..|_ | `;!|i|MMoMMMMoMMM|i|.'j   |_..!-'|     |     88
+            88   |      |    |   |`-,!_|_|MMMMY'YMMMM|_||.!-;'  |    |     |     88
+            88___|______|____!.,.!,.!,!|i|MMMl * loMM|i|,!,.!.,.!..__|_____|_____88
+            88      |     |    |  |  | |_|MMMMb,dMMMM|_|| |   |   |    |      |  88
+            88      |     |    |..!-;'i|i|MoMMMMMMMoM|i| |`-..|   |    |      |  88
+            88      |    _!.-j'  | _!,'|_|MMMoMMMoMMM|_||!._|  `i-!.._ |      |  88
+            88     _!.-'|    | _.'|  !;|i|MMMMMoMMMMM|i|`.| `-._|    |``-.._  |  88
+            88..-i'     |  _.''|  !-| !|_|MMoMMMMMoMM|_|.|`-. | ``._ |     |``'..88
+            88   |      |.|    |.|  !| |i|MMMoMMMoMMM|i||`. |`!   | `'.    |     88
+            88   |  _.-'  |  .'  |.' |/|_|MMoMMMMMoMM|_|! |`!  `,.|    |-._|     88
+            88  _!''|     !.'|  .'| .'|[@]MMMMMMMMMMM[@] \|  `. | `._  |   `-._  88
+            88-'    |   .'   |.|  |/| /                 \|`.  |`!    |.|      |`-88
+            88      |_.'|   .' | .' |/                   \  \ |  `.  | `._-   |  88
+            88     .'   | .'   |/|  /                     \ |`!   |`.|    `.  |  88
+            88  _.'     !'|   .' | /                       \|  `  |  `.    |`.|  88
+            88888888888888888888888888888888888888888888888888888888888888888888888
+    
+    "
+
+    printfn"
+        ---------
+       | Opzioni |
+        ---------
+    "
+
+
+    Console.ResetColor ()
+    
+    printf "Premi un tasto per generare il labirinto..."
+    Console.ReadKey()
+
+let printMaze (maze: String) =
+    for i=0 to maze.Length - 1 do
+        if maze.[i] = 'A' then
+            printf "  "//strada
+        elif maze.[i] = 'S' then
+            Console.ForegroundColor <- ConsoleColor.Green
+            printf "██" 
+            Console.ResetColor ()
+        elif maze.[i] = 'E' then
+            Console.ForegroundColor <- ConsoleColor.Red
+            printf "██"
+            Console.ResetColor ()
+        else
+            printf "%c" maze.[i]
 
 [< NoEquality; NoComparison >]
+
 type state = {
     player : sprite
 }
-//mori faso
 
 type Direction (dirX:int, dirY:int) =
     member this.dirX = dirX
@@ -55,6 +129,11 @@ type Maze (W:int, H:int) =
     let mutable privateBlockedCells:MazeCell list = []
     let mutable mutableMaze = List.init (W * H) (fun (cellIndex) -> new MazeCell(cellIndex % w, cellIndex / w, true))
     let privateGetCell (position:Position):MazeCell = mutableMaze.[(position.Y * w) + position.X]
+
+
+    
+
+
 
     let privateGetAdiacentCells (cell:MazeCell) (endPosition:Position)=
         let mutable resultCells: MazeCell list = []
@@ -211,50 +290,22 @@ let main () =
         let myMaze:Maze = new Maze(50, 50)
         let str = myMaze.generateMazeString()
 
-
+        ignore(printMenu)
         //stampo il labirinto
-        for i=0 to str.Length - 1 do
-            if str.[i] = 'A' then
-                printf "  "//strada
-            elif str.[i] = 'S' then
-                Console.ForegroundColor <- ConsoleColor.Green
-                printf "██" 
-                Console.ResetColor ()
-            elif str.[i] = 'E' then
-                Console.ForegroundColor <- ConsoleColor.Red
-                printf "██"
-                Console.ResetColor ()
-            else
-                printf "%c" str.[i]
+        printMaze str
         //printfn "\n \n \n \n \n \n \n \n"
 
-        printf "Vuoi vedere la soluzione (si/no/n = next labirinto): "
+        printf "Premi q per cuscrire:"
         let soluzione = Console.ReadLine()
         //printfn "\n \n \n \n \n \n \n \n"
-        printfn ""
     
-        if(soluzione = "si")
-            then    
-                //stampo il labirinto con soluzione
-                for i=0 to str.Length - 1 do
-                    if str.[i] = 'A' 
-                    then 
-                        Console.ForegroundColor <- ConsoleColor.DarkCyan
-                        printf "██"//soluzione di colore rosso
-                        Console.ResetColor ()
-                    elif str.[i] = 'S' then
-                        Console.ForegroundColor <- ConsoleColor.Green
-                        printf "██" 
-                        Console.ResetColor ()
-                    elif str.[i] = 'E' then
-                        Console.ForegroundColor <- ConsoleColor.Red
-                        printf "██"
-                        Console.ResetColor ()
-                    else
-                        printf "%c" str.[i]
-        elif soluzione = "n" then 
-                                    Console.Clear()
-                                    nextLabirinto()
+        if soluzione = "q" then 
+            Console.Clear()
+        else 
+            Console.Clear()
+            nextLabirinto()
+        
+                                    
     in nextLabirinto()
             
 
