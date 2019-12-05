@@ -7,6 +7,7 @@ open Gfx
 [< NoEquality; NoComparison >]
 type state = {
     indicatore : sprite
+    mutable status:string
 }
 
 type Buttons (etichetta:string, codice:int) =
@@ -15,7 +16,7 @@ type Buttons (etichetta:string, codice:int) =
     member this.codice = codice
     member this.Y with get() = y and set(value) = y <- value
 
-
+  
 let init ()  =
 
             let W = 60
@@ -41,29 +42,33 @@ let init ()  =
             
             let enter = char (13)
 
-            let a = "                          
-            "
             let myLoop (keyo : ConsoleKeyInfo option) (screen : wronly_raster) (st : state) =
-                screen.draw_text(a, 0, 7, Color.Green)
-                for i=0 to arr_options.Length - 1 do
-                    arr_options.[i].Y <- 3 + 2 * i
-                    screen.draw_text(arr_options.[i].etichetta, 4, arr_options.[i].Y, Color.White)
-
-                let dx, dy =
-                    match keyo with
-                    None -> 0. ,0.
-                    |Some key -> Console.Beep(330, 125) 
-                                 match key.KeyChar with 
-                                      'w' -> 0., -2.
-                                    | 's' -> 0., 2.
-                                   
-                                    | _   -> 0., 0.
-                st.indicatore.move_by(dx, dy)
                 
-                if (st.indicatore.y < 3.0) then st.indicatore.y <- 3.0
-                    else if (st.indicatore.y > float ( 3+(2*(arr_options.Length - 1)) ) ) 
-                            then st.indicatore.y <- float ( 3+(2*(arr_options.Length - 1)) )
-                st, false
+                    if (st.status = "menu") then 
+                                screen.draw_text("", 0, 7, Color.Green)
+                                for i=0 to arr_options.Length - 1 do
+                                    arr_options.[i].Y <- 3 + 2 * i
+                                    screen.draw_text(arr_options.[i].etichetta, 4, arr_options.[i].Y, Color.White)
+
+                                let dx, dy =
+                                    match keyo with
+                                    None -> 0. ,0.
+                                    |Some key -> Console.Beep(330, 125) 
+                                                 match key.KeyChar with 
+                                                      'w' -> 0., -2.
+                                                    | 's' -> 0., 2.
+                                                    | _ when key.KeyChar = enter -> ignore(st.status <- "ingame")
+                                                                                    ignore( Prova.main() )
+                                                                                    1.,1.
+                                                    | _   -> 0., 0.
+                                st.indicatore.move_by(dx, dy)
+                
+                                if (st.indicatore.y < 3.0) then st.indicatore.y <- 3.0
+                                    else if (st.indicatore.y > float ( 3+(2*(arr_options.Length - 1)) ) ) 
+                                            then st.indicatore.y <- float ( 3+(2*(arr_options.Length - 1)) )
+                                st, false
+
+                    else  st, false
 
 
             let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
@@ -93,6 +98,7 @@ let init ()  =
                 // initialize state
             let st0 = { 
                     indicatore = freccia
+                    status = "menu"
                     }
                 // start engine
             //engine.loop_on_key my_update st0

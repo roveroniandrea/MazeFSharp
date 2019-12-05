@@ -72,8 +72,8 @@
     <Compile Include="Demo1.fs" />
     <Compile Include="Demo2.fs" />
     <Compile Include="Test.fs" />
-    <Compile Include="Menu.fs" />
     <Compile Include="File1.fs" />
+    <Compile Include="Menu.fs" />
     <Compile Include="Main.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
