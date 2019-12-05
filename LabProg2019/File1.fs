@@ -10,7 +10,7 @@ open Gfx
 type state = {
     player : sprite
 }
-
+//mori faso
 
 type Direction (dirX:int, dirY:int) =
     member this.dirX = dirX
