@@ -72,10 +72,10 @@
     <Compile Include="Demo1.fs" />
     <Compile Include="Demo2.fs" />
     <Compile Include="Test.fs" />
-    <Compile Include="File1.fs" />
     <Compile Include="Main.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
+    <Compile Include="File1.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
