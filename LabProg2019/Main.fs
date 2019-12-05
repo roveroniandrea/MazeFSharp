@@ -28,7 +28,7 @@ let main_game () =
     use client = new NamedPipeClientStream (".", Config.log_pipe_name, PipeDirection.Out)
     client.Connect ()
     Log <- new remote_logger (client)
-
+    
     menu.init()
     0
 

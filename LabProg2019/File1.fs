@@ -113,14 +113,14 @@ type Maze (W:int, H:int) =
             linkExit (privateGetCell (cell.position.getTranslated(direction))) direction
 
     //genera il labirinto 
-    let rec generateMaze (startPosition:Position, endPosition:Position) =
+    let rec generateMaze (startPosition:Position, endPosition:Position, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
         //inizializzo
         let startCell = privateGetCell startPosition
         startCell.isVisited <- true
         startCell.isWall <- false
         let mutable mazePath:MazeCell list = [startCell]
         let myRandom = Random()
-        let mutable stessoIndexPer = myRandom.Next(3, 5)
+        let mutable stessoIndexPer = myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
         let mutable currentDirection = new Direction(1, 0)
         let mutable mazeCompleatelyExplored = false
 
@@ -143,7 +143,7 @@ type Maze (W:int, H:int) =
                         nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
                         currentDirection <- new Direction(nextCell.position.X - mazePath.Head.position.X, nextCell.position.Y - mazePath.Head.position.Y)
                         //resetto il countdown per la direzione
-                        stessoIndexPer <- myRandom.Next(3, 5)
+                        stessoIndexPer <- myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
                     //altrimenti scelgola cella che mantiene la stessa direzione
                     else
                         //controllo se esiste
@@ -155,7 +155,7 @@ type Maze (W:int, H:int) =
                         else
                             nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
                             currentDirection <- new Direction(nextCell.position.X - mazePath.Head.position.X, nextCell.position.Y - mazePath.Head.position.Y)
-                            stessoIndexPer <- myRandom.Next(3, 5)
+                            stessoIndexPer <- myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
                     //segno che sono andato nella stessa direzione un'altra volta
                     stessoIndexPer <- stessoIndexPer - 1
                     //blocco tutte le celle adiacenti
@@ -191,7 +191,7 @@ type Maze (W:int, H:int) =
         ignore(makeWallIfBlocked())
         ignore(linkExit (privateGetCell endPosition) (new Direction(-1, 0)))
 
-    do generateMaze(new Position(0,1), new Position (w-1,h - 4))
+    do generateMaze(new Position(0,1), new Position (w-1,h - 4), 2, 4)
     member this.W with get() = w
     member this.H with get() = h
     member this.maze with get() = mutableMaze
@@ -203,74 +203,24 @@ type Maze (W:int, H:int) =
     member this.generateMazeString () = privateGenMazeString()
 
 
-let W = 60
-let H = 40
+let main (W:int, H:int) =
+    let myMaze:Maze = new Maze(W, H)
+    let str = myMaze.generateMazeString()
 
-let main () =       
-    //let engine = new engine (W, H)
-    let rec nextLabirinto () = 
-        let myMaze:Maze = new Maze(W / 2, H)
-        let str = myMaze.generateMazeString()
-
-        let mutable convertedString = ""
-        //stampo il labirinto
-        for i=0 to str.Length - 1 do
-            if str.[i] = 'A' then
-                convertedString <- convertedString + "  "//strada
-            elif str.[i] = 'S' then
-                Console.ForegroundColor <- ConsoleColor.Green
-                convertedString <- convertedString +  "  " 
-                Console.ResetColor ()
-            elif str.[i] = 'E' then
-                Console.ForegroundColor <- ConsoleColor.Red
-                convertedString <- convertedString +  "  "
-                Console.ResetColor ()
-            else
-                convertedString <- convertedString + string(str.[i])
-        convertedString
-        //printfn "\n \n \n \n \n \n \n \n"
-        (*
-        printf "Vuoi vedere la soluzione (si/no/n = next labirinto): "
-        let soluzione = Console.ReadLine()
-        //printfn "\n \n \n \n \n \n \n \n"
-        printfn ""
-    
-        if(soluzione = "si")
-            then    
-                //stampo il labirinto con soluzione
-                for i=0 to str.Length - 1 do
-                    if str.[i] = 'A' 
-                    then 
-                        Console.ForegroundColor <- ConsoleColor.DarkCyan
-                        printf "██"//soluzione di colore rosso
-                        Console.ResetColor ()
-                    elif str.[i] = 'S' then
-                        Console.ForegroundColor <- ConsoleColor.Green
-                        printf "██" 
-                        Console.ResetColor ()
-                    elif str.[i] = 'E' then
-                        Console.ForegroundColor <- ConsoleColor.Red
-                        printf "██"
-                        Console.ResetColor ()
-                    else
-                        printf "%c" str.[i]
-        elif soluzione = "n" then 
-                                    Console.Clear()
-                                    nextLabirinto()*)
-    //in nextLabirinto()
-
-    let engine = new engine(W, H)
-
-    let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
-        screen.draw_text(nextLabirinto(), 0, 0, Color.White)
-        st, key.KeyChar = 'q'
-
-    engine.show_fps <- false
-    //let testo = engine.create_and_register_sprite(image.rectangle(22,1, pixel.filled Color.Green),0,4, 0)
-    // initialize state
-    let st0 = {
-        player = 0
-        }
-    // start engine
-    engine.loop_on_key my_update st0
+    let mutable convertedString = ""
+    //stampo il labirinto
+    for i=0 to str.Length - 1 do
+        if str.[i] = 'A' then
+            convertedString <- convertedString + "  "//strada
+        elif str.[i] = 'S' then
+            Console.ForegroundColor <- ConsoleColor.Green
+            convertedString <- convertedString +  "  " 
+            Console.ResetColor ()
+        elif str.[i] = 'E' then
+            Console.ForegroundColor <- ConsoleColor.Red
+            convertedString <- convertedString +  "  "
+            Console.ResetColor ()
+        else
+            convertedString <- convertedString + string(str.[i])
+    convertedString
 
