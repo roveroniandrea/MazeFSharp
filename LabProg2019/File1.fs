@@ -9,7 +9,7 @@ open Gfx
 
 [< NoEquality; NoComparison >]
 type state = {
-    player : sprite
+    player: int
 }
 //mori checchin
 
@@ -89,7 +89,7 @@ type Maze (W:int, H:int) =
             //trovo la cella
             let currentCell = privateGetCell(position)
             //se è un muro oppure è bloccata
-            if currentCell.isWall then stringResult <- stringResult + "██"  //alt + 178 -> ▓  alt + 219 -> █
+            if currentCell.isWall then stringResult <- stringResult + "\219\219"  //alt + 178 -> ▓  alt + 219 -> █
             //se è la cella iniziale
             elif (cellIndex=w) 
                 then stringResult <- stringResult + "S"
@@ -187,7 +187,7 @@ type Maze (W:int, H:int) =
                 generateMaze(endPosition, startPosition, ripetiNVolte - 1)
 
 
-    do generateMaze(new Position(0,1), new Position (w-1,29), 2)
+    do generateMaze(new Position(0,1), new Position (w-1,h - 4), 2)
     member this.W with get() = w
     member this.H with get() = h
     member this.maze with get() = mutableMaze
@@ -200,30 +200,32 @@ type Maze (W:int, H:int) =
 
 
 let W = 60
-let H = 30
+let H = 40
 
 let main () =       
     //let engine = new engine (W, H)
     let rec nextLabirinto () = 
-        let myMaze:Maze = new Maze(50, 50)
+        let myMaze:Maze = new Maze(W / 2, H)
         let str = myMaze.generateMazeString()
 
+        let mutable convertedString = ""
         //stampo il labirinto
         for i=0 to str.Length - 1 do
             if str.[i] = 'A' then
-                printf "  "//strada
+                convertedString <- convertedString + "  "//strada
             elif str.[i] = 'S' then
                 Console.ForegroundColor <- ConsoleColor.Green
-                printf "██" 
+                convertedString <- convertedString +  "  " 
                 Console.ResetColor ()
             elif str.[i] = 'E' then
                 Console.ForegroundColor <- ConsoleColor.Red
-                printf "██"
+                convertedString <- convertedString +  "  "
                 Console.ResetColor ()
             else
-                printf "%c" str.[i]
+                convertedString <- convertedString + string(str.[i])
+        convertedString
         //printfn "\n \n \n \n \n \n \n \n"
-
+        (*
         printf "Vuoi vedere la soluzione (si/no/n = next labirinto): "
         let soluzione = Console.ReadLine()
         //printfn "\n \n \n \n \n \n \n \n"
@@ -250,28 +252,21 @@ let main () =
                         printf "%c" str.[i]
         elif soluzione = "n" then 
                                     Console.Clear()
-                                    nextLabirinto()
-    in nextLabirinto()
-            
+                                    nextLabirinto()*)
+    //in nextLabirinto()
 
-    
-    (*
+    let engine = new engine(W, H)
+
     let my_update (key : ConsoleKeyInfo) (screen : wronly_raster) (st : state) =
-        screen.draw_text("Hai premuto qualcosa", 0, 3, Color.Green)
-        List.iter (fun (asteroide:sprite) -> asteroide.move_by(0, 1)) st.asteroidi
+        screen.draw_text(nextLabirinto(), 0, 0, Color.White)
         st, key.KeyChar = 'q'
 
-    // create simple backgroud and player
-    //ignore <| engine.create_and_register_sprite (image.rectangle (W, H, pixel.filled Color.Yellow, pixel.filled Color.Blue), 0, 0, 0)
-    let player = engine.create_and_register_sprite (image.rectangle (1, 1, pixel.filled Color.White, pixel.filled Color.Gray), W / 2, H / 2, 1)
     engine.show_fps <- false
-    let asteroidi = List.init 5 (fun x -> engine.create_and_register_sprite(image.rectangle(1, 1, pixel.filled Color.DarkGray, pixel.filled Color.DarkGray), Random().Next(0, W) , 0, 0 ))
     //let testo = engine.create_and_register_sprite(image.rectangle(22,1, pixel.filled Color.Green),0,4, 0)
     // initialize state
-    let st0 = { 
-        player = player
-        asteroidi = asteroidi
+    let st0 = {
+        player = 0
         }
     // start engine
-    engine.loop_on_key my_update st0*)
+    engine.loop_on_key my_update st0
 
