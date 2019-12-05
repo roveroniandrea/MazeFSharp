@@ -1,5 +1,6 @@
 ﻿module LabProg2019.Prova
 
+//█   ▀▄
 
 open System
 open Engine
@@ -13,18 +14,18 @@ type state = {
 //mori checchin
 
 type Direction (dirX:int, dirY:int) =
+    //inizializzo random
+    let myRandom = new Random()
     member this.dirX = dirX
     member this.dirY = dirY
+
+    //ritorna una direzione che non sia l'opposta
     member this.compatibleDirection () =
-        let probDirezione = 100
-        let mutable newX = Random().Next(3)  - 1
-        let mutable newY = Random().Next(3)  - 1
-        if Random().Next(100) <= probDirezione then
-            newX <- this.dirX
-            newY <- this.dirY
+        let mutable newX = myRandom.Next(3)  - 1
+        let mutable newY = myRandom.Next(3)  - 1
         while (newX + this.dirX) = 0 && (newY + this.dirY) = 0 do
-            newX <- Random().Next(3)  - 1
-            newY <- Random().Next(3)  - 1
+            newX <- myRandom.Next(3)  - 1
+            newY <- myRandom.Next(3)  - 1
         new Direction (newX, newY)
 
 type Position (x:int, y:int) =
@@ -54,7 +55,6 @@ type Maze (W:int, H:int) =
     let w = W
     let h = H
     let mutable privateMazeSolution:MazeCell list = []
-    //let mutable privateBlockedCells:MazeCell list = []
     let mutable mutableMaze = List.init (W * H) (fun (cellIndex) -> new MazeCell(cellIndex % w, cellIndex / w, true))
     let privateGetCell (position:Position):MazeCell = mutableMaze.[(position.Y * w) + position.X]
 
@@ -109,13 +109,6 @@ type Maze (W:int, H:int) =
             //let mutable blockedCells:MazeCell list = []
             let mutable exitFound = false
             let myRandom = Random()
-            //let mutable direction = new Direction(1, 0)
-            (*
-            while currentPosition.isInsideMaze w h do
-                let currentCell:MazeCell = privateGetCell currentPosition
-                currentCell.isVisited <- true
-                currentCell.isWall <- false
-                currentPosition <- currentPosition.getTranslated(direction)*)
             let mutable stessoIndexPer = myRandom.Next(3, 5)
             let mutable currentDirection = new Direction(1, 0)
             let mutable mazeCompleatelyExplored = false
@@ -131,7 +124,7 @@ type Maze (W:int, H:int) =
                     let notBlockedList = List.filter (fun (cell:MazeCell) -> not(cell.isBlocked))  notVisitedCells
                     
                     //se ci sono delle celle non visitate e delle celle non bloccate
-                    if (*notVisitedCells.Length > 0 &&*) notBlockedList.Length > 0 then
+                    if notBlockedList.Length > 0 then
                         //inizializzo nextCell
                         let mutable nextCell = notBlockedList.[myRandom.Next(notBlockedList.Length)]
                         //se posso cambiare direzione ne scelgo una casuale
@@ -167,8 +160,6 @@ type Maze (W:int, H:int) =
                         if nextCell.position.X = (w - 1) && nextCell.position.Y = (29) &&  notBlockedList.Length = 0 then exitFound <- true
                     //se invece la cella corrente non ha celle non bloccate
                     else
-                        //inizializzo l'index della cella da sbloccare
-                        //let mutable sbloccoCellaIndex = -1
                         //ottengo la prima cella sbloccabile se esiste
                         let existsUnblockableCell = List.tryFind (fun (cell:MazeCell) -> 
                                     //ottengo tutte le celle adiacenti a quella non visitata
@@ -189,11 +180,7 @@ type Maze (W:int, H:int) =
                             mazeSolution <- mazeSolution.Tail
                             
                 privateMazeSolution <- mazeSolution
-                (*
-                let str = privateGenMazeString()
-                printfn "%s" str
-                Threading.Thread.Sleep(1000)
-                Console.Clear()*)
+                //richiamo 
                 generateMaze(endPosition, startPosition, ripetiNVolte - 1)
 
 
