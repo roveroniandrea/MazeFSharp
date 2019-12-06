@@ -62,6 +62,19 @@
   </PropertyGroup>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <None Include="Game_sounds\click.wav" />
+    <None Include="Game_sounds\click_2.wav" />
+    <None Include="Game_sounds\load.wav" />
+    <None Include="Game_sounds\misc_menu.wav" />
+    <None Include="Game_sounds\misc_menu_2.wav" />
+    <None Include="Game_sounds\misc_menu_3.wav" />
+    <None Include="Game_sounds\misc_menu_4.wav" />
+    <None Include="Game_sounds\misc_sound.wav" />
+    <None Include="Game_sounds\negative.wav" />
+    <None Include="Game_sounds\negative_2.wav" />
+    <None Include="Game_sounds\positive.wav" />
+    <None Include="Game_sounds\save.wav" />
+    <None Include="Game_sounds\sharp_echo.wav" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Prelude.fs" />
     <Compile Include="Config.fs" />
@@ -76,7 +89,7 @@
     <Compile Include="Menu.fs" />
     <Compile Include="Main.fs" />
     <None Include="App.config" />
-    <Content Include="packages.config" />
+    <EmbeddedResource Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

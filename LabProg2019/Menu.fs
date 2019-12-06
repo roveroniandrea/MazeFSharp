@@ -1,8 +1,10 @@
 ﻿module LabProg2019.menu
 
 open System
+open System.IO
 open Engine
 open Gfx
+open System.Media
 
 type Status = Menu|InGame
 type ButtonAction = StartGame|Quit
@@ -31,6 +33,15 @@ let init ()  =
             
             let engine = new engine (W, H)
 
+
+            let menu_sound = new SoundPlayer()
+
+           
+            menu_sound.SoundLocation <- "Game_sounds/misc_menu_4.wav"
+            //printfn "%A" 
+            menu_sound.Load()
+
+
             Console.ForegroundColor <- ConsoleColor.Green
             (*
             printfn "
@@ -57,7 +68,7 @@ let init ()  =
                                 let dx, dy =
                                     match keyo with
                                     None -> 0. ,0.
-                                    |Some key -> Console.Beep(330, 125) 
+                                    |Some key -> //menu_sound.Play()
                                                  match key.KeyChar with 
                                                       'w' -> 0., -2.
                                                     | 's' -> 0., 2.
@@ -67,7 +78,7 @@ let init ()  =
                                                                                         |Some button -> match button.codice with
                                                                                                         ButtonAction.StartGame -> st.status <- Status.InGame
                                                                                                                                   mazeString <- Prova.main(W / 2, H)
-                                                                                                                                  screen.draw_text(mazeString, 0, 0, Color.DarkGray)
+                                                                                                                                  //screen.draw_text(mazeString, 0, 0,Color.DarkGray)
                                                                                                                                   st.indicatore.clear
                                                                                                         |ButtonAction.Quit -> wantToQuit <- true
                                                                                     0., 0.
@@ -85,7 +96,7 @@ let init ()  =
                          let dx, dy =
                              match keyo with
                              None -> 0., 0.
-                             |Some key -> Console.Beep(330, 125) 
+                             |Some key -> System.Console.Beep(2000, 500) 
                                           match key.KeyChar with 
                                                'w' -> 0., 0.
                                              | 'a' -> 0., 0.
