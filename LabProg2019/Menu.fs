@@ -84,7 +84,6 @@ let init ()  =
                                                                                         |Some button -> match button.codice with
                                                                                                         ButtonAction.StartGame -> st.status <- Status.InGame
                                                                                                                                   mazeString <- Prova.main(W / 2, H)
-                                                                                                                                  //screen.draw_text(mazeString, 0, 0,Color.DarkGray)
                                                                                                                                   st.indicatore.clear
                                                                                                         |ButtonAction.Quit -> wantToQuit <- true
                                                                                     0., 0.
@@ -98,6 +97,10 @@ let init ()  =
 
                     elif st.status = Status.InGame then
                          screen.draw_text(mazeString, 0, 0, Color.DarkGray)
+                         //partenza
+                         screen.draw_text("\219\219", 0, 1, Color.DarkGreen)
+                         //arrivo
+                         screen.draw_text("\219\219", 58, 26, Color.DarkRed)
                          //movimento giocatore da fare
                          let dx, dy =
                              match keyo with
