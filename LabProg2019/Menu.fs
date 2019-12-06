@@ -23,12 +23,14 @@ type Button (etichetta:string, codice:ButtonAction) =
 
 
 let init ()  =
+            
+            
 
             let W = 60
             let H = 30
 
             let arr_options:Button list = [ new Button ("Gioca", ButtonAction.StartGame);
-                                             new Button ("Esci", ButtonAction.Quit)
+                                             new Button ("Esci!", ButtonAction.Quit)
                                           ]
             
             let engine = new engine (W, H)
@@ -55,17 +57,32 @@ let init ()  =
                                 let mutable wantToQuit = false
 
                                 screen.draw_text("
-                                888b     d888        d8888 8888888888P 8888888888
-                                8888b   d8888       d88888       d88P  888
-                                88888b.d88888      d88P888      d88P   888   
-                                888Y88888P888     d88P 888     d88P    8888888 
-                                888 Y888P 888    d88P  888    d88P     888 
-                                888  Y8P  888   d88P   888   d88P      888
-                                888       888  d8888888888  d88P       888
-                                888       888 d88P     888 d8888888888 8888888888", -26, 0, Color.Green)
+                                88888888888888888888888888888888888888888888888888888888888
+                                88    | `-.  | `.  -_-_ _-_  _-  _- -_ -  .'|   |.'|     88
+                                88._  |    |`!  |`.  -_ -__ -_ _- _-_-  .'  |.;'   |   _.88
+                                88| `-!._  |  `;!  ;. _______________ ,'| .-' |   _!.i'  88
+                                88|     |`-!._ | `.| |_______________||.''|  _!.;'   |   88
+                                88'..__ |    |`';.| i|_|           |_|'| _!-|   |   _|..-88
+                                88    |``--..|_ | `;!|i|           |i|.'j   |_..!-'|     88
+                                88    |    |   |`-,!_|_|           |_||.!-;'  |    |     88
+                                88____|____!.,.!,.!,!|i|  -------  |i|,!,.!.,.!..__|_____88
+                                88|     |    |  |  | |_| |       | |_|| |   |   |    |   88
+                                88|     |    |..!-;'i|i|  -------  |i| |`-..|   |    |   88
+                                88|    _!.-j'  | _!,'|_|  -------  |_||!._|  `i-!.._ |   88
+                                88!.-'|    | _.'|  !;|i| |       | |i|`.| `-._|    |``-..88
+                                88    |  _.''|  !-| !|_|  -------  |_|.|`-. | ``._ |     88
+                                88    |.|    |.|  !| |i|           |i||`. |`!   | `'.    88
+                                88_.-'  |  .'  |.' |/|_|           |_|! |`!  `,.|    |-._88
+                                88|     !.'|  .'| .'|[@]___________[@] \|  `. | `._  |   88
+                                88|   .'   |.|  |/| /                 \|`.  |`!    |.|   88
+                                88|_.'|   .' | .' |/                   \  \ |  `.  | `._-88
+                                88'   | .'   |/|  /                     \ |`!   |`.|    `88
+                                88    !'|   .' | /                       \|  `  |  `.    88
+                                88888888888888888888888888888888888888888888888888888888888
+                                ", -31, 4, Color.Green)
 
                                 for i=0 to arr_options.Length - 1 do
-                                    arr_options.[i].Y <- 15 + 2 * i
+                                    arr_options.[i].Y <- 14 + 3 * i
                                     screen.draw_text(arr_options.[i].etichetta, 28, arr_options.[i].Y, Color.White)
                                 
                                 
@@ -74,8 +91,8 @@ let init ()  =
                                     None -> 0. ,0.
                                     |Some key -> menu_sound.Play()
                                                  match key.KeyChar with 
-                                                      'w' -> 0., -2.
-                                                    | 's' -> 0., 2.
+                                                      'w' -> 0., -3.
+                                                    | 's' -> 0., 3.
                                                     | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = int(st.indicatore.y)) arr_options
                                                                                     in match clickedButton with
                                                                                          None -> ignore()
@@ -91,11 +108,11 @@ let init ()  =
                                                     | _   -> 0., 0.
                                 st.indicatore.move_by(dx, dy)
 
-                                st.indicatore.x <- 24.0
+                                st.indicatore.x <- 25.0
 
-                                if (st.indicatore.y < 15.0) then st.indicatore.y <- 15.0
-                                    else if (st.indicatore.y > float ( 15+(2*(arr_options.Length - 1)) ) ) 
-                                            then st.indicatore.y <- float ( 15+(2*(arr_options.Length - 1)) )
+                                if (st.indicatore.y < 14.0) then st.indicatore.y <- 14.0
+                                    else if (st.indicatore.y > float ( 14+(3*(arr_options.Length - 1)) ) ) 
+                                            then st.indicatore.y <- float ( 14+(2*(arr_options.Length - 1)) )
                                 st, wantToQuit
 
                     elif st.status = Status.InGame then
@@ -134,7 +151,7 @@ let init ()  =
                          st, false
                     else st, false
 
-            let freccia = engine.create_and_register_sprite (image.rectangle (2,1,pixel.create('>', Color.Green)), 0, 3, 1)
+            let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 2, 3, 1)
 
             // initialize state
             let st0 = { 
