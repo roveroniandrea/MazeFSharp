@@ -62,6 +62,11 @@ let init ()  =
             
             let enter = char (13)
             let mutable mazeString = ""
+            let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), 2, 1, 2)
+            player.clear
+           //player.draw_rectangle(1,1, pixel.create('*', Color.Cyan)
+                  
+
 
             let myLoop (keyo : ConsoleKeyInfo option) (screen : wronly_raster) (st : state) =
                     if (st.status = Status.Menu) then 
@@ -84,7 +89,10 @@ let init ()  =
                                                                                         |Some button -> match button.codice with
                                                                                                         ButtonAction.StartGame -> st.status <- Status.InGame
                                                                                                                                   mazeString <- Prova.main(W / 2, H)
+                                                                                                                                  player.drawSprite
                                                                                                                                   st.indicatore.clear
+
+
                                                                                                         |ButtonAction.Quit -> wantToQuit <- true
                                                                                     0., 0.
                                                     | _   -> 0., 0.
@@ -102,16 +110,25 @@ let init ()  =
                          //arrivo
                          screen.draw_text("\219\219", 58, 26, Color.DarkRed)
                          //movimento giocatore da fare
+
+                         //ignore(engine.show_sprites )
+                         
                          let dx, dy =
                              match keyo with
                              None -> 0., 0.
-                             |Some key -> System.Console.Beep(2000, 500) 
+                             |Some key -> //System.Console.Beep(2000, 500) 
+                                          
                                           match key.KeyChar with 
-                                               'w' -> 0., 0.
-                                             | 'a' -> 0., 0.
-                                             | 's' -> 0., 0.
-                                             | 'd' -> 0., 0.
+                                               'w' ->player.y <- (player.y)-1. 
+                                                     0., 0.
+                                             | 'a' -> player.x <- (player.x)-1.
+                                                      0.,0.
+                                             | 's' -> player.y <- (player.y)+1. 
+                                                      0., 0.
+                                             | 'd' -> player.x <- (player.x)+1.
+                                                      0.,0.
                                              | 'q' -> st.status <- Status.Menu
+                                                      player.clear
                                                       st.indicatore.flood_fill(0, 0, pixel.create('>', Color.Green))
                                                       0., 0.
                                              | _   -> 0., 0.
@@ -120,9 +137,13 @@ let init ()  =
 
             let freccia = engine.create_and_register_sprite (image.rectangle (2,1,pixel.create('>', Color.Green)), 0, 3, 1) //è una freccia anche bella da vedere con il giusto approccio bella lì colibrì stai tranquillo ho solo fatto un commento lungo
 
+            
+
+
             // initialize state
             let st0 = { 
                     indicatore = freccia
+
                     status = Status.Menu
                     }
             engine.show_fps <- false
