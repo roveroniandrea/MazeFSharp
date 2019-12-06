@@ -29,36 +29,17 @@ let init ()  =
 
             let arr_options:Button list = [ new Button ("Gioca", ButtonAction.StartGame);
                                              new Button ("Esci", ButtonAction.Quit)
-                                           ]
+                                          ]
             
             let engine = new engine (W, H)
 
 
+
             let menu_sound = new SoundPlayer()
-            //LabProg2019\Game_sounds\misc_menu_4.wav
-            
-            
-
-            
-
-            
-
-            menu_sound.SoundLocation <- "..\..\Game_sounds\misc_menu_4.wav"
-            //printfn "%A" 
+            menu_sound.SoundLocation <- "..\..\Game_sounds\misc_menu.wav" 
             menu_sound.Load()
 
-
             Console.ForegroundColor <- ConsoleColor.Green
-            (*
-            printfn "
-            
-            ███╗   ███╗ █████╗ ███████╗███████╗
-            ████╗ ████║██╔══██╗╚══███╔╝██╔════╝
-            ██╔████╔██║███████║  ███╔╝ █████╗  
-            ██║╚██╔╝██║██╔══██║ ███╔╝  ██╔══╝  
-            ██║ ╚═╝ ██║██║  ██║███████╗███████╗
-            ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝                                   
-            "*)
             
             let enter = char (13)
             let mutable mazeString = ""
@@ -67,14 +48,26 @@ let init ()  =
            //player.draw_rectangle(1,1, pixel.create('*', Color.Cyan)
                   
 
-
             let myLoop (keyo : ConsoleKeyInfo option) (screen : wronly_raster) (st : state) =
                     if (st.status = Status.Menu) then 
+                                        
+                                        
                                 let mutable wantToQuit = false
-                                screen.draw_text("", 0, 7, Color.Green)
+
+                                screen.draw_text("
+                                888b     d888        d8888 8888888888P 8888888888
+                                8888b   d8888       d88888       d88P  888
+                                88888b.d88888      d88P888      d88P   888   
+                                888Y88888P888     d88P 888     d88P    8888888 
+                                888 Y888P 888    d88P  888    d88P     888 
+                                888  Y8P  888   d88P   888   d88P      888
+                                888       888  d8888888888  d88P       888
+                                888       888 d88P     888 d8888888888 8888888888", -26, 0, Color.Green)
+
                                 for i=0 to arr_options.Length - 1 do
-                                    arr_options.[i].Y <- 3 + 2 * i
-                                    screen.draw_text(arr_options.[i].etichetta, 4, arr_options.[i].Y, Color.White)
+                                    arr_options.[i].Y <- 15 + 2 * i
+                                    screen.draw_text(arr_options.[i].etichetta, 28, arr_options.[i].Y, Color.White)
+                                
                                 
                                 let dx, dy =
                                     match keyo with
@@ -85,7 +78,7 @@ let init ()  =
                                                     | 's' -> 0., 2.
                                                     | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = int(st.indicatore.y)) arr_options
                                                                                     in match clickedButton with
-                                                                                        None -> ignore()
+                                                                                         None -> ignore()
                                                                                         |Some button -> match button.codice with
                                                                                                         ButtonAction.StartGame -> st.status <- Status.InGame
                                                                                                                                   mazeString <- Prova.main(W / 2, H)
@@ -97,10 +90,12 @@ let init ()  =
                                                                                     0., 0.
                                                     | _   -> 0., 0.
                                 st.indicatore.move_by(dx, dy)
-                
-                                if (st.indicatore.y < 3.0) then st.indicatore.y <- 3.0
-                                    else if (st.indicatore.y > float ( 3+(2*(arr_options.Length - 1)) ) ) 
-                                            then st.indicatore.y <- float ( 3+(2*(arr_options.Length - 1)) )
+
+                                st.indicatore.x <- 24.0
+
+                                if (st.indicatore.y < 15.0) then st.indicatore.y <- 15.0
+                                    else if (st.indicatore.y > float ( 15+(2*(arr_options.Length - 1)) ) ) 
+                                            then st.indicatore.y <- float ( 15+(2*(arr_options.Length - 1)) )
                                 st, wantToQuit
 
                     elif st.status = Status.InGame then
@@ -116,8 +111,7 @@ let init ()  =
                          let dx, dy =
                              match keyo with
                              None -> 0., 0.
-                             |Some key -> //System.Console.Beep(2000, 500) 
-                                          
+                             |Some key -> 
                                           match key.KeyChar with 
                                                'w' ->player.y <- (player.y)-1. 
                                                      0., 0.
@@ -129,16 +123,18 @@ let init ()  =
                                                       0.,0.
                                              | 'q' -> st.status <- Status.Menu
                                                       player.clear
+
+                                                      //risetto la posizione a quella di partenza
+                                                      player.x <- 2.
+                                                      player.y <- 1.
+
                                                       st.indicatore.flood_fill(0, 0, pixel.create('>', Color.Green))
                                                       0., 0.
                                              | _   -> 0., 0.
                          st, false
                     else st, false
 
-            let freccia = engine.create_and_register_sprite (image.rectangle (2,1,pixel.create('>', Color.Green)), 0, 3, 1) //è una freccia anche bella da vedere con il giusto approccio bella lì colibrì stai tranquillo ho solo fatto un commento lungo
-
-            
-
+            let freccia = engine.create_and_register_sprite (image.rectangle (2,1,pixel.create('>', Color.Green)), 0, 3, 1)
 
             // initialize state
             let st0 = { 
