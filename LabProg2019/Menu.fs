@@ -35,9 +35,15 @@ let init ()  =
 
 
             let menu_sound = new SoundPlayer()
+            //LabProg2019\Game_sounds\misc_menu_4.wav
+            
+            
 
-           
-            menu_sound.SoundLocation <- "Game_sounds/misc_menu_4.wav"
+            
+
+            
+
+            menu_sound.SoundLocation <- "..\..\Game_sounds\misc_menu_4.wav"
             //printfn "%A" 
             menu_sound.Load()
 
@@ -64,11 +70,11 @@ let init ()  =
                                 for i=0 to arr_options.Length - 1 do
                                     arr_options.[i].Y <- 3 + 2 * i
                                     screen.draw_text(arr_options.[i].etichetta, 4, arr_options.[i].Y, Color.White)
-
+                                
                                 let dx, dy =
                                     match keyo with
                                     None -> 0. ,0.
-                                    |Some key -> //menu_sound.Play()
+                                    |Some key -> menu_sound.Play()
                                                  match key.KeyChar with 
                                                       'w' -> 0., -2.
                                                     | 's' -> 0., 2.
