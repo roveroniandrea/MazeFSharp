@@ -75,6 +75,7 @@
     <None Include="Game_sounds\positive.wav" />
     <None Include="Game_sounds\save.wav" />
     <None Include="Game_sounds\sharp_echo.wav" />
+    <None Include="Game_sounds\sound87.wav" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Prelude.fs" />
     <Compile Include="Config.fs" />
