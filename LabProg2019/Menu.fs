@@ -42,17 +42,20 @@ let init ()  =
             
             let engine = new engine (W, H)
 
+            let intro_game = new SoundPlayer("..\..\Game_sounds\intro.wav")
+            intro_game.Load()
+            intro_game.PlayLooping()
 
 
-            let menu_sound = new SoundPlayer()
-      
-            menu_sound.SoundLocation <- "..\..\Game_sounds\misc_menu.wav" 
+            let menu_sound = new SoundPlayer("..\..\Game_sounds\misc_menu.wav")
             menu_sound.Load()
 
+            let winning = new SoundPlayer("..\..\Game_sounds\Victory.wav")
+            winning.Load()
 
-            let game_sound = new SoundPlayer()
+            let game_sound = new SoundPlayer("..\..\Game_sounds\ingame.wav")
+            game_sound.Load()
 
-           
 
             Console.ForegroundColor <- ConsoleColor.Green
 
@@ -87,6 +90,9 @@ let init ()  =
                   Press any key to start...
             "
             ignore(Console.ReadKey())
+            
+            intro_game.Stop()
+
             Console.Clear()
             let enter = char (13)
             let mutable mazeString = ""
@@ -155,9 +161,10 @@ let init ()  =
                                                                                                                                   st.player.x <- (float(startPosition.X*2))
                                                                                                                                   st.player.y <- float(startPosition.Y)
                                                                                                                                   st.indicatore.clear
+                                                                                                                                  game_sound.PlayLooping()
 
-
-                                                                                                        |ButtonAction.Quit -> wantToQuit <- true
+                                                                                                        |ButtonAction.Quit -> Environment.Exit(0)
+                                                                                                                              wantToQuit <- true
                                                                                     0., 0.
                                                     | _   -> 0., 0.
                                 st.indicatore.move_by(dx, dy)
@@ -200,13 +207,19 @@ let init ()  =
                          let nextPosition: Position = new Position(int(st.player.x + dx) / 2, int(st.player.y + dy))
                          let nextCell: MazeCell = MyMaze.Value.getCell(nextPosition)
                          if not(nextCell.isWall) then st.player.move_by(dx, dy)
-                         if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then st.status <- Status.Victory
+                         if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then winning.Play()
+                                                                                                             st.status <- Status.Victory
                          st, false
-                    elif st.status = Status.Victory then st.player.clear
+                    elif st.status = Status.Victory then 
+                                                         
+                                                         st.player.clear
+                                                         
                                                          screen.draw_text ("HAI VINTO!!",15,15,Color.Green)
                                                          screen.draw_text ("Premi un tasto per tornare al menu'",15,20,Color.Green)
+                                                         
 
-                                                         if(keyo.IsSome) then st.status <- Status.Menu
+                                                         if(keyo.IsSome) then winning.Stop()
+                                                                              st.status <- Status.Menu
                                                                               st.indicatore.drawSprite(pixel.create('>', Color.White))
                                                          st,false
                     elif st.status = Status.ShowSolution then 
