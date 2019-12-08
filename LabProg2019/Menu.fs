@@ -80,7 +80,7 @@ let init ()  =
                 ██████████████████  ██████████
 
 
-        By:       Checchin       Fasolato      Roveroni
+       By:       Checchin       Fasolato      Roveroni
 
 
 
@@ -109,7 +109,7 @@ let init ()  =
                                         
                                 let mutable wantToQuit = false
 
-                                //screen.draw_text("",- ,1, Color.Green)
+                                screen.draw_text("MAZE",28 ,2, Color.Green)
 
                                 screen.draw_text("
                                 \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
@@ -214,7 +214,7 @@ let init ()  =
                                                          
                                                          st.player.clear
                                                          
-                                                         screen.draw_text ("HAI VINTO!!",15,15,Color.Green)
+                                                         screen.draw_text ("HAI VINTO!!",26,15,Color.Green)
                                                          screen.draw_text ("Premi un tasto per tornare al menu'",15,20,Color.Green)
                                                          
 
