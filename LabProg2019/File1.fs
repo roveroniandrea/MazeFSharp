@@ -104,7 +104,11 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
 
     //tutte le celle con isBlocked vengono messe isWall
     let makeWallIfBlocked () =
-        List.iter (fun (cell:MazeCell) -> if cell.isBlocked then cell.isWall <- true)
+        List.iter (fun (cell:MazeCell) -> if cell.isBlocked then cell.isWall <- true) mutableMaze
+
+    let resetCellsStatus () =
+        List.iter (fun (cell:MazeCell) -> cell.isBlocked <- false
+                                          cell.isVisited <- false) mutableMaze
 
     let rec linkExit (cell:MazeCell) (direction:Direction) =
         if not(cell.isVisited) then
@@ -190,6 +194,7 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
         //chiamo correzione delle celle bloccate
         ignore(makeWallIfBlocked())
         ignore(linkExit (privateGetCell endPosition) (new Direction(-1, 0)))
+        ignore(resetCellsStatus())
 
     do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
     member this.W with get() = w
@@ -197,6 +202,18 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
     member this.maze with get() = mutableMaze
 
     member this.getCell (position:Position):MazeCell = privateGetCell position
+
+    member this.findSolution () =
+       let mutable solution:MazeCell list = [this.getCell(startPosition)]
+       while not(solution.Head.position.X = endPosition.X && solution.Head.position.Y = endPosition.Y) do
+            solution.Head.isVisited <- true
+            let adiacentCells : MazeCell list = privateGetAdiacentCells solution.Head endPosition
+            let notVisitedAdiacent: MazeCell list = List.filter (fun (cell:MazeCell) -> not(cell.isVisited) && not(cell.isWall)) adiacentCells
+            if notVisitedAdiacent.Length > 0 then
+                let nextCell:MazeCell = notVisitedAdiacent.[0]
+                solution <- nextCell::solution
+            else solution <- solution.Tail
+       solution
 
     //member this.getSolution with get() = privateMazeSolution
 
@@ -210,16 +227,10 @@ let main (W:int, H:int, startPosition:Position, endPosition:Position, sameDirect
     let mutable convertedString = ""
     //stampo il labirinto
     for i=0 to str.Length - 1 do
-        if str.[i] = 'A' then
-            convertedString <- convertedString + "  "//strada
-        elif str.[i] = 'S' then
-            Console.ForegroundColor <- ConsoleColor.Green
-            convertedString <- convertedString +  "  " 
-            Console.ResetColor ()
-        elif str.[i] = 'E' then
-            Console.ForegroundColor <- ConsoleColor.Red
+        if str.[i] = 'S' then
             convertedString <- convertedString +  "  "
-            Console.ResetColor ()
+        elif str.[i] = 'E' then
+            convertedString <- convertedString +  "  "
         else
             convertedString <- convertedString + string(str.[i])
     (convertedString,myMaze)

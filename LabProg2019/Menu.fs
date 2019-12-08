@@ -7,7 +7,7 @@ open Gfx
 open System.Media
 open LabProg2019.Prova
 
-type Status = Menu|InGame|Victory
+type Status = Menu|InGame|Victory|ShowSolution
 type ButtonAction = StartGame|Quit
 
 [< NoEquality; NoComparison >]
@@ -36,8 +36,8 @@ let init ()  =
             let sameDirectionMax = 4
 
 
-            let arr_options:Button list = [ new Button ("Gioca", ButtonAction.StartGame);
-                                             new Button ("Esci!", ButtonAction.Quit)
+            let arr_options:Button list = [ new Button ("Play!", ButtonAction.StartGame);
+                                             new Button ("Exit!", ButtonAction.Quit)
                                           ]
             
             let engine = new engine (W, H)
@@ -94,7 +94,8 @@ let init ()  =
             let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), startPosition.X*2, startPosition.Y, 2)
             player.clear
            //player.draw_rectangle(1,1, pixel.create('*', Color.Cyan)
-                  
+            let mutable mazeSolution: MazeCell list = []
+            let mutable spriteSolution: sprite list = []
 
             let myLoop (keyo : ConsoleKeyInfo option) (screen : wronly_raster) (st : state) =
                     if (st.status = Status.Menu) then 
@@ -187,6 +188,9 @@ let init ()  =
                                              | 'a' -> -2.,0.
                                              | 's' -> 0., 1.
                                              | 'd' -> 2.,0.
+                                             | 'e' -> st.status <- Status.ShowSolution
+                                                      st.player.clear
+                                                      0.,0.
                                              | 'q' -> st.status <- Status.Menu
                                                       st.player.clear
 
@@ -205,6 +209,19 @@ let init ()  =
                                                          if(keyo.IsSome) then st.status <- Status.Menu
                                                                               st.indicatore.drawSprite(pixel.create('>', Color.White))
                                                          st,false
+                    elif st.status = Status.ShowSolution then 
+                        screen.draw_text(mazeString, 0, 0, Color.DarkGray)
+                        if mazeSolution.Length = 0 then
+                                                        mazeSolution <- MyMaze.Value.findSolution()
+                                                        spriteSolution <- []
+                                                        List.iter (fun (cell:MazeCell) -> (spriteSolution <- (engine.create_and_register_sprite (image.rectangle(2, 1, pixel.create('\219', Color.DarkCyan)), cell.position.X * 2, cell.position.Y, 1)) :: spriteSolution)) mazeSolution
+                        
+                        if(keyo.IsSome) then st.status <- Status.Menu
+                                             st.indicatore.drawSprite(pixel.create('>', Color.White))
+                                             List.iter (fun (mySprite:sprite) -> (*mySprite.clear*) engine.removeSprite(mySprite)) spriteSolution
+                                             mazeSolution <- []
+                        st, false
+                    
                     else st, false
 
             let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 2, 3, 1)

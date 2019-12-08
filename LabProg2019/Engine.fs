@@ -120,6 +120,11 @@ type engine (w : int, h : int, ?fps_cap : int, ?flip_queue) =
         while data.apply (fun r -> not r.quit) do Thread.Sleep 500
         timer.Elapsed.RemoveHandler handler
         Log.msg "exiting engine loop."
+
+    member this.removeSprite (mySprite : sprite) =
+        sprites <- List.filter (fun (spr:sprite) -> not(spr = mySprite)) sprites
+        let len = List.length sprites
+        Log.msg "removed sprite #%d: x=%g y=%g z=%d width=%d height=%d" len mySprite.x mySprite.y mySprite.z mySprite.width mySprite.height
         
 
 
