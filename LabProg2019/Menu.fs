@@ -7,7 +7,7 @@ open Gfx
 open System.Media
 open LabProg2019.Prova
 
-type Status = Menu|InGame
+type Status = Menu|InGame|Victory
 type ButtonAction = StartGame|Quit
 
 [< NoEquality; NoComparison >]
@@ -55,7 +55,39 @@ let init ()  =
            
 
             Console.ForegroundColor <- ConsoleColor.Green
-            
+
+            printfn "
+
+
+
+                ████  ████████████████████████
+                ██                          ██
+                ██  ██████████  ██████████  ██
+                ██  ██  ██  ██  ██      ██  ██
+                ██  ██  ██  ██  ██████████  ██
+                ██  ██  ██  ██  ██      ██  ██
+                ██  ██  ██  ██  ██      ██  ██
+                ██                          ██
+                ██  ██████████  ██████████  ██
+                ██          ██  ██          ██
+                ██  ██████████  ██████████  ██
+                ██  ██          ██          ██
+                ██  ██████████  ██████████  ██
+                ██                          ██
+                ██████████████████  ██████████
+
+
+        By:       Checchin       Fasolato      Roveroni
+
+
+
+
+
+
+                  Press any key to start...
+            "
+            ignore(Console.ReadKey())
+            Console.Clear()
             let enter = char (13)
             let mutable mazeString = ""
             let mutable MyMaze: Maze option = None
@@ -118,6 +150,9 @@ let init ()  =
                                                                                                                                   mazeString <- MazeStr
                                                                                                                                   MyMaze <- Some(myMaze)
                                                                                                                                   st.player.drawSprite (pixel.create ('\219',Color.Cyan))
+                                                                                                                                  //resetto la posizione a quella di partenza
+                                                                                                                                  st.player.x <- (float(startPosition.X*2))
+                                                                                                                                  st.player.y <- float(startPosition.Y)
                                                                                                                                   st.indicatore.clear
 
 
@@ -155,17 +190,21 @@ let init ()  =
                                              | 'q' -> st.status <- Status.Menu
                                                       st.player.clear
 
-                                                      //resetto la posizione a quella di partenza
-                                                      st.player.x <- (float(startPosition.X*2))
-                                                      st.player.y <- float(startPosition.Y)
-
                                                       st.indicatore.drawSprite(pixel.create('>', Color.White)) //flood_fill(0, 0, pixel.create('>', Color.Green))
                                                       0., 0.
                                              | _   -> 0., 0.
                          let nextPosition: Position = new Position(int(st.player.x + dx) / 2, int(st.player.y + dy))
                          let nextCell: MazeCell = MyMaze.Value.getCell(nextPosition)
                          if not(nextCell.isWall) then st.player.move_by(dx, dy)
+                         if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then st.status <- Status.Victory
                          st, false
+                    elif st.status = Status.Victory then st.player.clear
+                                                         screen.draw_text ("HAI VINTO!!",15,15,Color.Green)
+                                                         screen.draw_text ("Premi un tasto per tornare al menu'",15,20,Color.Green)
+
+                                                         if(keyo.IsSome) then st.status <- Status.Menu
+                                                                              st.indicatore.drawSprite(pixel.create('>', Color.White))
+                                                         st,false
                     else st, false
 
             let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 2, 3, 1)
