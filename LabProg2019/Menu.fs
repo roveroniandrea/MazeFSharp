@@ -5,12 +5,14 @@ open System.IO
 open Engine
 open Gfx
 open System.Media
+open LabProg2019.Prova
 
 type Status = Menu|InGame
 type ButtonAction = StartGame|Quit
 
 [< NoEquality; NoComparison >]
 type state = {
+    player: sprite
     indicatore : sprite
     mutable status: Status
 }
@@ -28,6 +30,11 @@ let init ()  =
 
             let W = 60
             let H = 30
+            let startPosition: Position = new Position (0,1)
+            let endPosition: Position = new Position ((W/2)-1,H-2)
+            let sameDirectionMin = 2
+            let sameDirectionMax = 4
+
 
             let arr_options:Button list = [ new Button ("Gioca", ButtonAction.StartGame);
                                              new Button ("Esci!", ButtonAction.Quit)
@@ -51,7 +58,8 @@ let init ()  =
             
             let enter = char (13)
             let mutable mazeString = ""
-            let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), 2, 1, 2)
+            let mutable MyMaze: Maze option = None
+            let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), startPosition.X*2, startPosition.Y, 2)
             player.clear
            //player.draw_rectangle(1,1, pixel.create('*', Color.Cyan)
                   
@@ -106,8 +114,10 @@ let init ()  =
                                                                                          None -> ignore()
                                                                                         |Some button -> match button.codice with
                                                                                                         ButtonAction.StartGame -> st.status <- Status.InGame
-                                                                                                                                  mazeString <- Prova.main(W / 2, H)
-                                                                                                                                  player.drawSprite
+                                                                                                                                  let (MazeStr, myMaze) = Prova.main(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax)
+                                                                                                                                  mazeString <- MazeStr
+                                                                                                                                  MyMaze <- Some(myMaze)
+                                                                                                                                  st.player.drawSprite (pixel.create ('\219',Color.Cyan))
                                                                                                                                   st.indicatore.clear
 
 
@@ -120,15 +130,15 @@ let init ()  =
 
                                 if (st.indicatore.y < 14.0) then st.indicatore.y <- 14.0
                                     else if (st.indicatore.y > float ( 14+(3*(arr_options.Length - 1)) ) ) 
-                                            then st.indicatore.y <- float ( 14+(2*(arr_options.Length - 1)) )
+                                            then st.indicatore.y <- float ( 14+(3*(arr_options.Length - 1)) )
                                 st, wantToQuit
 
                     elif st.status = Status.InGame then
                          screen.draw_text(mazeString, 0, 0, Color.DarkGray)
                          //partenza
-                         screen.draw_text("\219\219", 0, 1, Color.DarkGreen)
+                         screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
                          //arrivo
-                         screen.draw_text("\219\219", 58, 26, Color.DarkRed)
+                         screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
                          //movimento giocatore da fare
 
                          //ignore(engine.show_sprites )
@@ -138,33 +148,32 @@ let init ()  =
                              None -> 0., 0.
                              |Some key -> 
                                           match key.KeyChar with 
-                                               'w' ->player.y <- (player.y)-1. 
-                                                     0., 0.
-                                             | 'a' -> player.x <- (player.x)-1.
-                                                      0.,0.
-                                             | 's' -> player.y <- (player.y)+1. 
-                                                      0., 0.
-                                             | 'd' -> player.x <- (player.x)+1.
-                                                      0.,0.
+                                               'w' -> 0., -1.
+                                             | 'a' -> -2.,0.
+                                             | 's' -> 0., 1.
+                                             | 'd' -> 2.,0.
                                              | 'q' -> st.status <- Status.Menu
-                                                      player.clear
+                                                      st.player.clear
 
-                                                      //risetto la posizione a quella di partenza
-                                                      player.x <- 2.
-                                                      player.y <- 1.
+                                                      //resetto la posizione a quella di partenza
+                                                      st.player.x <- (float(startPosition.X*2))
+                                                      st.player.y <- float(startPosition.Y)
 
-                                                      st.indicatore.flood_fill(0, 0, pixel.create('>', Color.Green))
+                                                      st.indicatore.drawSprite(pixel.create('>', Color.White)) //flood_fill(0, 0, pixel.create('>', Color.Green))
                                                       0., 0.
                                              | _   -> 0., 0.
+                         let nextPosition: Position = new Position(int(st.player.x + dx) / 2, int(st.player.y + dy))
+                         let nextCell: MazeCell = MyMaze.Value.getCell(nextPosition)
+                         if not(nextCell.isWall) then st.player.move_by(dx, dy)
                          st, false
                     else st, false
 
             let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 2, 3, 1)
 
             // initialize state
-            let st0 = { 
+            let st0 = {
+                    player = player
                     indicatore = freccia
-
                     status = Status.Menu
                     }
             engine.show_fps <- false

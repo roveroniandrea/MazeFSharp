@@ -78,11 +78,10 @@ type wronly_raster (w, h) =
             for x = 0 to this.width - 1 do
                 this.[x, y] <- pixel.filled Color.Black
 
-    abstract member drawSprite : unit
-       default this.drawSprite =
+    member this.drawSprite (carattere: pixel) : unit =
            for y = 0 to this.height - 1 do
                for x = 0 to this.width - 1 do
-                   this.[x, y] <- pixel.create ('\219',Color.Cyan)
+                   this.[x, y] <- carattere
 
     // commit
     abstract member commit : unit

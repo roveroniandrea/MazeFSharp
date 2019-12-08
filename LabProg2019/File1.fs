@@ -53,7 +53,7 @@ type MazeCell (x:int, y:int, isWall:bool) =
 
 
 
-type Maze (W:int, H:int) =
+type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
     let w = W
     let h = H
     let mutable mutableMaze = List.init (W * H) (fun (cellIndex) -> new MazeCell(cellIndex % w, cellIndex / w, true))
@@ -191,7 +191,7 @@ type Maze (W:int, H:int) =
         ignore(makeWallIfBlocked())
         ignore(linkExit (privateGetCell endPosition) (new Direction(-1, 0)))
 
-    do generateMaze(new Position(0,1), new Position (w-1,h - 4), 2, 4)
+    do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
     member this.W with get() = w
     member this.H with get() = h
     member this.maze with get() = mutableMaze
@@ -203,8 +203,8 @@ type Maze (W:int, H:int) =
     member this.generateMazeString () = privateGenMazeString()
 
 
-let main (W:int, H:int) =
-    let myMaze:Maze = new Maze(W, H)
+let main (W:int, H:int, startPosition:Position, endPosition:Position, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
+    let myMaze:Maze = new Maze(W, H, startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
     let str = myMaze.generateMazeString()
 
     let mutable convertedString = ""
@@ -222,5 +222,5 @@ let main (W:int, H:int) =
             Console.ResetColor ()
         else
             convertedString <- convertedString + string(str.[i])
-    convertedString
+    (convertedString,myMaze)
 
