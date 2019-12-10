@@ -59,8 +59,9 @@ type engine (w : int, h : int, ?fps_cap : int, ?flip_queue) =
     member __.register_sprite (spr : sprite) =
         let len = lock sprites <| fun () ->
             sprites <- List.sortBy (fun spr -> spr.z) (spr :: sprites)  // sprites are always sorted in ascending order by z
-            List.length sprites
-        Log.msg "registered sprite #%d: x=%g y=%g z=%d width=%d height=%d" len spr.x spr.y spr.z spr.width spr.height
+            //List.length sprites
+        ()
+        //Log.msg "registered sprite #%d: x=%g y=%g z=%d width=%d height=%d" len spr.x spr.y spr.z spr.width spr.height
 
     member this.create_and_register_sprite (img, x, y, z) = let r = new sprite (img, x, y, z) in this.register_sprite r; r
     member this.create_and_register_sprite (w, h, x, y, z) = this.create_and_register_sprite (new image (w, h), x, y, z)
@@ -123,8 +124,8 @@ type engine (w : int, h : int, ?fps_cap : int, ?flip_queue) =
 
     member this.removeSprite (mySprite : sprite) =
         sprites <- List.filter (fun (spr:sprite) -> not(spr = mySprite)) sprites
-        let len = List.length sprites
-        Log.msg "removed sprite #%d: x=%g y=%g z=%d width=%d height=%d" len mySprite.x mySprite.y mySprite.z mySprite.width mySprite.height
+        // len = List.length sprites
+        //Log.msg "removed sprite #%d: x=%g y=%g z=%d width=%d height=%d" len mySprite.x mySprite.y mySprite.z mySprite.width mySprite.height
         
 
 

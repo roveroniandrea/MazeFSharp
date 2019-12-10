@@ -7,8 +7,8 @@ open Gfx
 open System.Media
 open LabProg2019.Prova
 
-type Status = Menu|InGame|Victory|ShowSolution
-type ButtonAction = StartGame|Quit
+type Status = Menu|InGame|Victory|ShowSolution|MenuTasti
+type ButtonAction = StartGame|Quit|MenuTasti
 
 [< NoEquality; NoComparison >]
 type state = {
@@ -28,16 +28,17 @@ let init ()  =
             
             
 
-            let W = 60
-            let H = 30
+            let W = 150
+            let H = 35
             let startPosition: Position = new Position (0,1)
             let endPosition: Position = new Position ((W/2)-1,H-2)
             let sameDirectionMin = 2
-            let sameDirectionMax = 4
+            let sameDirectionMax = 2
 
 
             let arr_options:Button list = [ new Button ("Play!", ButtonAction.StartGame);
-                                             new Button ("Exit!", ButtonAction.Quit)
+                                            new Button ("Tasti", ButtonAction.MenuTasti);
+                                            new Button ("Exit!", ButtonAction.Quit)
                                           ]
             
             let engine = new engine (W, H)
@@ -63,31 +64,31 @@ let init ()  =
 
 
 
-                ████  ████████████████████████
-                ██                          ██
-                ██  ██████████  ██████████  ██
-                ██  ██  ██  ██  ██      ██  ██
-                ██  ██  ██  ██  ██████████  ██
-                ██  ██  ██  ██  ██      ██  ██
-                ██  ██  ██  ██  ██      ██  ██
-                ██                          ██
-                ██  ██████████  ██████████  ██
-                ██          ██  ██          ██
-                ██  ██████████  ██████████  ██
-                ██  ██          ██          ██
-                ██  ██████████  ██████████  ██
-                ██                          ██
-                ██████████████████  ██████████
+                                                            ████  ████████████████████████
+                                                            ██                          ██
+                                                            ██  ██████████  ██████████  ██
+                                                            ██  ██  ██  ██  ██      ██  ██
+                                                            ██  ██  ██  ██  ██████████  ██
+                                                            ██  ██  ██  ██  ██      ██  ██
+                                                            ██  ██  ██  ██  ██      ██  ██
+                                                            ██                          ██
+                                                            ██  ██████████  ██████████  ██
+                                                            ██          ██  ██          ██
+                                                            ██  ██████████  ██████████  ██
+                                                            ██  ██          ██          ██
+                                                            ██  ██████████  ██████████  ██
+                                                            ██                          ██
+                                                            ██████████████████  ██████████
 
 
-       By:       Checchin       Fasolato      Roveroni
-
-
-
+                                                    By:       Checchin       Fasolato      Roveroni
 
 
 
-                  Press any key to start...
+
+
+
+                                                                Press any key to start...
             "
             ignore(Console.ReadKey())
             
@@ -95,6 +96,12 @@ let init ()  =
 
             Console.Clear()
             let enter = char (13)
+
+            let arrowUP = char (38)
+            let arrowDown = char (40)
+            let arrowLeft = char (37)
+            let arrowRight = char (39)
+
             let mutable mazeString = ""
             let mutable MyMaze: Maze option = None
             let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), startPosition.X*2, startPosition.Y, 2)
@@ -109,36 +116,36 @@ let init ()  =
                                         
                                 let mutable wantToQuit = false
 
-                                screen.draw_text("MAZE",28 ,2, Color.Green)
+                                //screen.draw_text("MAZE",28 ,2, Color.Green)
 
                                 screen.draw_text("
                                 \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
                                 \219\219    | `-.  | `.  -_-_ _-_  _-  _- -_ -  .'|   |.'|     \219\219
                                 \219\219._  |    |`!  |`.  -_ -__ -_ _- _-_-  .'  |.;'   |   _.\219\219
                                 \219\219| `-!._  |  `;!  ;. _______________ ,'| .-' |   _!.i'  \219\219
-                                \219\219|     |`-!._ | `.| |_______________||.''|  _!.;'   |   \219\219
-                                \219\219'..__ |    |`';.| i|_|           |_|'| _!-|   |   _|..-\219\219
-                                \219\219    |``--..|_ | `;!|i|           |i|.'j   |_..!-'|     \219\219
-                                \219\219    |    |   |`-,!_|_|           |_||.!-;'  |    |     \219\219
-                                \219\219____|____!.,.!,.!,!|i|  -------  |i|,!,.!.,.!..__|_____\219\219
-                                \219\219|     |    |  |  | |_| |       | |_|| |   |   |    |   \219\219
-                                \219\219|     |    |..!-;'i|i|  -------  |i| |`-..|   |    |   \219\219
+                                \219\219|     |`-!._ | `.| [@]           [@]|.''|  _!.;'   |   \219\219
+                                \219\219'..__ |    |`';.| i|_|  -------  |_|'| _!-|   |   _|..-\219\219
+                                \219\219    |``--..|_ | `;!|i| |       | |i|.'j   |_..!-'|     \219\219
+                                \219\219    |    |   |`-,!_|_|  -------  |_||.!-;'  |    |     \219\219
+                                \219\219____|____!.,.!,.!,!|i|           |i|,!,.!.,.!..__|_____\219\219
+                                \219\219|     |    |  |  | |_|  -------  |_|| |   |   |    |   \219\219
+                                \219\219|     |    |..!-;'i|i| |       | |i| |`-..|   |    |   \219\219
                                 \219\219|    _!.-j'  | _!,'|_|  -------  |_||!._|  `i-!.._ |   \219\219
-                                \219\219!.-'|    | _.'|  !;|i| |       | |i|`.| `-._|    |``-..\219\219
+                                \219\219!.-'|    | _.'|  !;|i|           |i|`.| `-._|    |``-..\219\219
                                 \219\219    |  _.''|  !-| !|_|  -------  |_|.|`-. | ``._ |     \219\219
-                                \219\219    |.|    |.|  !| |i|           |i||`. |`!   | `'.    \219\219
-                                \219\219_.-'  |  .'  |.' |/|_|           |_|! |`!  `,.|    |-._\219\219
+                                \219\219    |.|    |.|  !| |i| |       | |i||`. |`!   | `'.    \219\219
+                                \219\219_.-'  |  .'  |.' |/|_|  -------  |_|! |`!  `,.|    |-._\219\219
                                 \219\219|     !.'|  .'| .'|[@]___________[@] \|  `. | `._  |   \219\219
                                 \219\219|   .'   |.|  |/| /                 \|`.  |`!    |.|   \219\219
                                 \219\219|_.'|   .' | .' |/                   \  \ |  `.  | `._-\219\219
                                 \219\219'   | .'   |/|  /                     \ |`!   |`.|    `\219\219
                                 \219\219    !'|   .' | /                       \|  `  |  `.    \219\219
                                 \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
-                                ", -31, 4, Color.Green)
+                                ", 11, 4, Color.Green)
 
                                 for i=0 to arr_options.Length - 1 do
-                                    arr_options.[i].Y <- 14 + 3 * i
-                                    screen.draw_text(arr_options.[i].etichetta, 28, arr_options.[i].Y, Color.White)
+                                    arr_options.[i].Y <- 11 + 4 * i
+                                    screen.draw_text(arr_options.[i].etichetta, 70, arr_options.[i].Y, Color.White)
                                 
                                 
                                 let dx, dy =
@@ -146,8 +153,8 @@ let init ()  =
                                     None -> 0. ,0.
                                     |Some key -> menu_sound.Play()
                                                  match key.KeyChar with 
-                                                      'w' -> 0., -3.
-                                                    | 's' -> 0., 3.
+                                                      'w' -> 0., -4.
+                                                    | 's' -> 0., 4.
                                                     | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = int(st.indicatore.y)) arr_options
                                                                                     in match clickedButton with
                                                                                          None -> ignore()
@@ -165,15 +172,17 @@ let init ()  =
 
                                                                                                         |ButtonAction.Quit -> Environment.Exit(0)
                                                                                                                               wantToQuit <- true
+
+                                                                                                        |ButtonAction.MenuTasti -> st.status <- Status.MenuTasti
                                                                                     0., 0.
                                                     | _   -> 0., 0.
                                 st.indicatore.move_by(dx, dy)
 
-                                st.indicatore.x <- 25.0
+                                st.indicatore.x <- 67.0
 
-                                if (st.indicatore.y < 14.0) then st.indicatore.y <- 14.0
-                                    else if (st.indicatore.y > float ( 14+(3*(arr_options.Length - 1)) ) ) 
-                                            then st.indicatore.y <- float ( 14+(3*(arr_options.Length - 1)) )
+                                if (st.indicatore.y < 11.) then st.indicatore.y <- 11.
+                                    else if (st.indicatore.y > float ( 11+(4*(arr_options.Length - 1)) ) ) 
+                                            then st.indicatore.y <- float ( 4+(3*(arr_options.Length - 1)) )
                                 st, wantToQuit
 
                     elif st.status = Status.InGame then
@@ -234,16 +243,47 @@ let init ()  =
                                              List.iter (fun (mySprite:sprite) -> (*mySprite.clear*) engine.removeSprite(mySprite)) spriteSolution
                                              mazeSolution <- []
                         st, false
-                    
+                    elif st.status = Status.MenuTasti then 
+                        st.indicatore.clear
+                        screen.draw_text("
+                        \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
+                        \219\219                                                       \219\219
+                        \219\219                      Menu' Tasti                      \219\219
+                        \219\219                                                       \219\219
+                        \219\219              -------                                  \219\219
+                        \219\219             |   W   |        Tasti per                \219\219 
+                        \219\219             | A S D |        i movimenti              \219\219
+                        \219\219              -------                                  \219\219
+                        \219\219              -------                                  \219\219
+                        \219\219             | Enter |        Invio                    \219\219
+                        \219\219              -------                                  \219\219
+                        \219\219              -------                                  \219\219
+                        \219\219             |   Q   |        Esci                     \219\219
+                        \219\219              -------                                  \219\219
+                        \219\219              -------                                  \219\219
+                        \219\219             |   E   |        Vis. soluzione           \219\219
+                        \219\219              -------                                  \219\219
+                        \219\219                                                       \219\219
+                        \219\219                                                       \219\219
+                        \219\219               Premi un tasto per uscire...            \219\219
+                        \219\219                                                       \219\219
+                        \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
+                        ", 19, 4, Color.Green)
+
+                        if(keyo.IsSome) then winning.Stop()
+                                             st.status <- Status.Menu
+                                             st.indicatore.drawSprite(pixel.create('>', Color.White))
+
+                        st, false
                     else st, false
 
-            let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 2, 3, 1)
+            let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 25, 11, 1)
 
             // initialize state
             let st0 = {
                     player = player
                     indicatore = freccia
-                    status = Status.Menu
+                    status = Status.MenuTasti
                     }
             engine.show_fps <- false
             // start engine
