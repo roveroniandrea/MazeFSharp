@@ -17,7 +17,7 @@ type state = {
 }
 
 type Button (etichetta:string, codice:ButtonAction) =
-    let mutable y = 0
+    let mutable y = 0.
     member this.etichetta = etichetta
     member this.codice:ButtonAction = codice
     member this.Y with get() = y and set(value) = y <- value
@@ -30,6 +30,9 @@ let init ()  =
             let endPosition: Vector = new Vector ((W/2)-1,H-2)
             let sameDirectionMin = 2
             let sameDirectionMax = 2
+
+            let menuYstart = 11.
+            let menuYIncrease = 4.
 
 
             let arr_options:Button list = [ new Button ("Play!", ButtonAction.StartGame);
@@ -130,8 +133,8 @@ let init ()  =
                                 ", 11, 4, Color.Green)
 
                                 for i=0 to arr_options.Length - 1 do
-                                    arr_options.[i].Y <- 11 + 4 * i
-                                    screen.draw_text(arr_options.[i].etichetta, 70, arr_options.[i].Y, Color.White)
+                                    arr_options.[i].Y <- menuYstart + menuYIncrease * float(i)
+                                    screen.draw_text(arr_options.[i].etichetta, 70, int(arr_options.[i].Y), Color.White)
                                 
                                 let dx, dy =
                                     match keyo with
@@ -140,7 +143,7 @@ let init ()  =
                                                  match key.KeyChar with 
                                                       'w' -> 0., -4.
                                                     | 's' -> 0., 4.
-                                                    | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = int(st.indicatore.y)) arr_options
+                                                    | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = st.indicatore.y) arr_options
                                                                                     in match clickedButton with
                                                                                          None -> ignore()
                                                                                         |Some button -> match button.codice with
@@ -165,9 +168,9 @@ let init ()  =
 
                                 st.indicatore.x <- 67.0
 
-                                if (st.indicatore.y < 11.) then st.indicatore.y <- 11.
-                                    else if (st.indicatore.y > float ( 11+(4*(arr_options.Length - 1)) ) ) 
-                                            then st.indicatore.y <- float ( 4+(3*(arr_options.Length - 1)) )
+                                if (st.indicatore.y < 11.) then st.indicatore.y <- menuYstart + menuYIncrease * float(arr_options.Length - 1)
+                                    else if st.indicatore.y > menuYstart + menuYIncrease * float(arr_options.Length - 1)
+                                            then st.indicatore.y <- 11.//float ( 4+(3*(arr_options.Length - 1)) )
                                 st, wantToQuit
 
                     elif st.status = Status.InGame then
