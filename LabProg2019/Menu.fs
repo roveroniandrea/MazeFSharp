@@ -270,6 +270,5 @@ let init ()  =
                     }
             engine.show_fps <- false
             // start engine
-            //engine.loop_on_key my_update st0
             engine.loop myLoop st0
                  

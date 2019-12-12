@@ -4,27 +4,13 @@
 
 open System
 
-(*type Direction (dirX:int, dirY:int) =
-    //inizializzo random
-    let myRandom = new Random()
-    member this.dirX = dirX
-    member this.dirY = dirY
-
-    //ritorna una direzione che non sia l'opposta
-    member this.compatibleDirection () =
-        let mutable newX = myRandom.Next(3)  - 1
-        let mutable newY = myRandom.Next(3)  - 1
-        while (newX + this.dirX) = 0 && (newY + this.dirY) = 0 do
-            newX <- myRandom.Next(3)  - 1
-            newY <- myRandom.Next(3)  - 1
-        new Direction (newX, newY)*)
+//inizializzo random
+let myRandom = new Random()
 
 [<NoComparison;NoEquality>]
 type Vector (x:int, y:int) =
     let mutable x = x
     let mutable y = y
-    //inizializzo random
-    let myRandom = new Random()
 
     member this.X with get() = x
     member this.Y with get() = y
@@ -100,10 +86,10 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
             if currentCell.isWall then stringResult <- stringResult + "\219\219"  //alt + 178 -> ▓  alt + 219 -> █
             //se è la cella iniziale
             elif (cellIndex=w) 
-                then stringResult <- stringResult + "S"
+                then stringResult <- stringResult + "  "
             //se è la cella finale
             elif (cellIndex=((w-1)+(w*29))) 
-                then stringResult <- stringResult + "E"
+                then stringResult <- stringResult + "  "
             //altrimenti è una via
             else stringResult <- stringResult + "  "
             //vado a capo se ho raggiunto la fine della riga
@@ -205,39 +191,40 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         ignore(resetCellsStatus())
 
     do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
+
+    //getter di w e h
     member this.W with get() = w
     member this.H with get() = h
+    //getter della lista delle celle
     member this.maze with get() = mutableMaze
 
+    //ottiene la cella ad una certa posizione
     member this.getCell (position:Vector):MazeCell = privateGetCell position
 
+    //trova la soluzione in MazeCell list
     member this.findSolution () =
-       let mutable solution:MazeCell list = [this.getCell(startPosition)]
+       let mutable solution: MazeCell list = [this.getCell(startPosition)]
+       //finchè non arrivo alla fine
        while not(solution.Head.position.isSameAs(endPosition)) do
             solution.Head.isVisited <- true
+            //trovo le celle adiacenti
             let adiacentCells : MazeCell list = privateGetAdiacentCells solution.Head endPosition
+            //prendo quelle non visitate
             let notVisitedAdiacent: MazeCell list = List.filter (fun (cell:MazeCell) -> not(cell.isVisited) && not(cell.isWall)) adiacentCells
+            //se ce ne sono di non visitate ne scelgo una
             if notVisitedAdiacent.Length > 0 then
                 let nextCell:MazeCell = notVisitedAdiacent.[0]
                 solution <- nextCell::solution
+            //altrimenti è un vicolo cieco e torno indietro
             else solution <- solution.Tail
        solution
 
+    //genera la stringa stampabile dalla lista di celle
     member this.generateMazeString () = privateGenMazeString()
 
-
+//funzione di init. Genera un labirinto e lo ritorna insieme alla stringa da stampare
 let initMaze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
     let myMaze:Maze = new Maze(W, H, startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
     let str = myMaze.generateMazeString()
-
-    let mutable convertedString = ""
-    //stampo il labirinto
-    for i=0 to str.Length - 1 do
-        if str.[i] = 'S' then
-            convertedString <- convertedString +  "  "
-        elif str.[i] = 'E' then
-            convertedString <- convertedString +  "  "
-        else
-            convertedString <- convertedString + string(str.[i])
-    (convertedString,myMaze)
+    (str,myMaze)
 
