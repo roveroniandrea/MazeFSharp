@@ -19,7 +19,7 @@ type Direction (dirX:int, dirY:int) =
             newY <- myRandom.Next(3)  - 1
         new Direction (newX, newY)
 
-[<NoEquality; NoComparison>]
+[<NoComparison;NoEquality>]
 type Position (x:int, y:int) =
     let mutable x = x
     let mutable y = y
@@ -31,6 +31,7 @@ type Position (x:int, y:int) =
 
     member this.getTranslated (direction:Direction) = new Position(this.X + direction.dirX, this.Y + direction.dirY)
 
+    member this.isSameAs (other:Position) = this.X = other.X && this.Y = other.Y
 
 //classe della singola cella
 type MazeCell (x:int, y:int, isWall:bool) =
@@ -57,7 +58,8 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
         let mutable resultCells: MazeCell list = []
 
         let addIfInsideMaze (position:Position) =
-            if position.isInsideMaze w h || ((position.X = endPosition.X)&&(position.Y = endPosition.Y (*|| position.Y = (endPosition.Y + 1)*)))then resultCells <- resultCells @ [privateGetCell position]
+            if position.isInsideMaze w h || position.isSameAs(endPosition) then resultCells <- resultCells @ [privateGetCell position]
+        
         //cella est
         let direction = new Direction(-1, 0)
         addIfInsideMaze (cell.position.getTranslated(direction))
@@ -198,7 +200,7 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
 
     member this.findSolution () =
        let mutable solution:MazeCell list = [this.getCell(startPosition)]
-       while not(solution.Head.position.X = endPosition.X && solution.Head.position.Y = endPosition.Y) do
+       while not(solution.Head.position.isSameAs(endPosition)) do
             solution.Head.isVisited <- true
             let adiacentCells : MazeCell list = privateGetAdiacentCells solution.Head endPosition
             let notVisitedAdiacent: MazeCell list = List.filter (fun (cell:MazeCell) -> not(cell.isVisited) && not(cell.isWall)) adiacentCells
@@ -207,8 +209,6 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
                 solution <- nextCell::solution
             else solution <- solution.Tail
        solution
-
-    //member this.getSolution with get() = privateMazeSolution
 
     member this.generateMazeString () = privateGenMazeString()
 
