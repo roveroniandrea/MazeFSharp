@@ -4,7 +4,7 @@
 
 open System
 
-type Direction (dirX:int, dirY:int) =
+(*type Direction (dirX:int, dirY:int) =
     //inizializzo random
     let myRandom = new Random()
     member this.dirX = dirX
@@ -17,28 +17,41 @@ type Direction (dirX:int, dirY:int) =
         while (newX + this.dirX) = 0 && (newY + this.dirY) = 0 do
             newX <- myRandom.Next(3)  - 1
             newY <- myRandom.Next(3)  - 1
-        new Direction (newX, newY)
+        new Direction (newX, newY)*)
 
 [<NoComparison;NoEquality>]
-type Position (x:int, y:int) =
+type Vector (x:int, y:int) =
     let mutable x = x
     let mutable y = y
+    //inizializzo random
+    let myRandom = new Random()
+
     member this.X with get() = x
     member this.Y with get() = y
+
     //ritorna true o false se la posizione è all'interno del labirinto
     member this.isInsideMaze (W:int) (H:int):bool =
         this.X >= 1 && this.X < (W-1) && this.Y >= 1 && this.Y < (H-1)
 
-    member this.getTranslated (direction:Direction) = new Position(this.X + direction.dirX, this.Y + direction.dirY)
+    member this.getTranslated (direction:Vector) = new Vector(this.X + direction.X, this.Y + direction.Y)
 
-    member this.isSameAs (other:Position) = this.X = other.X && this.Y = other.Y
+    member this.isSameAs (other:Vector) = this.X = other.X && this.Y = other.Y
+
+    //ritorna una direzione che non sia l'opposta
+    member this.compatibleDirection () =
+        let mutable newX = myRandom.Next(3)  - 1
+        let mutable newY = myRandom.Next(3)  - 1
+        while (newX + this.X) = 0 && (newY + this.Y) = 0 do
+            newX <- myRandom.Next(3)  - 1
+            newY <- myRandom.Next(3)  - 1
+        new Vector (newX, newY)
 
 //classe della singola cella
 type MazeCell (x:int, y:int, isWall:bool) =
     let mutable mutableIsWall:bool = isWall
     let mutable mutableVisited: bool = false
     let mutable mutableBlocked: bool = false
-    let mutable mutablePosition: Position = new Position(x, y)
+    let mutable mutablePosition: Vector = new Vector(x, y)
 
     member this.isWall with get() = mutableIsWall and set(value) = mutableIsWall <- value
     member this.isVisited with get() = mutableVisited and set(value) = mutableVisited <- value
@@ -47,30 +60,30 @@ type MazeCell (x:int, y:int, isWall:bool) =
 
 
 
-type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
+type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
     let w = W
     let h = H
     let mutable mutableMaze = List.init (W * H) (fun (cellIndex) -> new MazeCell(cellIndex % w, cellIndex / w, true))
-    let privateGetCell (position:Position):MazeCell = mutableMaze.[(position.Y * w) + position.X]
+    let privateGetCell (position:Vector):MazeCell = mutableMaze.[(position.Y * w) + position.X]
 
     //ritorna tutte le celle adiacenti ad essa se sono all'interno del labirinto
-    let privateGetAdiacentCells (cell:MazeCell) (endPosition:Position)=
+    let privateGetAdiacentCells (cell:MazeCell) (endPosition:Vector)=
         let mutable resultCells: MazeCell list = []
 
-        let addIfInsideMaze (position:Position) =
+        let addIfInsideMaze (position:Vector) =
             if position.isInsideMaze w h || position.isSameAs(endPosition) then resultCells <- resultCells @ [privateGetCell position]
         
         //cella est
-        let direction = new Direction(-1, 0)
+        let direction = new Vector(-1, 0)
         addIfInsideMaze (cell.position.getTranslated(direction))
         //cella nord
-        let direction = new Direction(0, 1)
+        let direction = new Vector(0, 1)
         addIfInsideMaze (cell.position.getTranslated(direction))
         //cella ovest
-        let direction = new Direction(1, 0)
+        let direction = new Vector(1, 0)
         addIfInsideMaze (cell.position.getTranslated(direction))
         //cella sud
-        let direction = new Direction(0, -1)
+        let direction = new Vector(0, -1)
         addIfInsideMaze (cell.position.getTranslated(direction))
         resultCells
 
@@ -80,7 +93,7 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
         //per ogni cella
         for cellIndex = 0 to (w * h) - 1 do
             //trovo la sua posizione
-            let position:Position = new Position(cellIndex % w, cellIndex / w)
+            let position:Vector = new Vector(cellIndex % w, cellIndex / w)
             //trovo la cella
             let currentCell = privateGetCell(position)
             //se è un muro oppure è bloccata
@@ -105,14 +118,14 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
         List.iter (fun (cell:MazeCell) -> cell.isBlocked <- false
                                           cell.isVisited <- false) mutableMaze
 
-    let rec linkExit (cell:MazeCell) (direction:Direction) =
+    let rec linkExit (cell:MazeCell) (direction:Vector) =
         if not(cell.isVisited) then
             cell.isWall <- false
             cell.isVisited <- true
             linkExit (privateGetCell (cell.position.getTranslated(direction))) direction
 
     //genera il labirinto 
-    let rec generateMaze (startPosition:Position, endPosition:Position, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
+    let rec generateMaze (startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
         //inizializzo
         let startCell = privateGetCell startPosition
         startCell.isVisited <- true
@@ -120,7 +133,7 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
         let mutable mazePath:MazeCell list = [startCell]
         let myRandom = Random()
         let mutable stessoIndexPer = myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
-        let mutable currentDirection = new Direction(1, 0)
+        let mutable currentDirection = new Vector(1, 0)
         let mutable mazeCompleatelyExplored = false
 
         while not(mazeCompleatelyExplored) do
@@ -140,20 +153,20 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
                     //se posso cambiare direzione ne scelgo una casuale
                     if stessoIndexPer <= 0 then
                         nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
-                        currentDirection <- new Direction(nextCell.position.X - mazePath.Head.position.X, nextCell.position.Y - mazePath.Head.position.Y)
+                        currentDirection <- new Vector(nextCell.position.X - mazePath.Head.position.X, nextCell.position.Y - mazePath.Head.position.Y)
                         //resetto il countdown per la direzione
                         stessoIndexPer <- myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
                     //altrimenti scelgola cella che mantiene la stessa direzione
                     else
                         //controllo se esiste
-                        let containsStessaDirezione = List.exists (fun (cell:MazeCell) -> (cell.position.X - mazePath.Head.position.X) = currentDirection.dirX && (cell.position.Y - mazePath.Head.position.Y) = currentDirection.dirY) notBlockedList
+                        let containsStessaDirezione = List.exists (fun (cell:MazeCell) -> (cell.position.X - mazePath.Head.position.X) = currentDirection.X && (cell.position.Y - mazePath.Head.position.Y) = currentDirection.Y) notBlockedList
                         //se esiste la scelgo
                         if containsStessaDirezione then
-                            nextCell <- List.find (fun (cell:MazeCell) -> (cell.position.X - mazePath.Head.position.X) = currentDirection.dirX && (cell.position.Y - mazePath.Head.position.Y) = currentDirection.dirY) notBlockedList
+                            nextCell <- List.find (fun (cell:MazeCell) -> (cell.position.X - mazePath.Head.position.X) = currentDirection.X && (cell.position.Y - mazePath.Head.position.Y) = currentDirection.Y) notBlockedList
                         //altrimenti ne prendo uan a caso (DUPLICATO da if precedente)
                         else
                             nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
-                            currentDirection <- new Direction(nextCell.position.X - mazePath.Head.position.X, nextCell.position.Y - mazePath.Head.position.Y)
+                            currentDirection <- new Vector(nextCell.position.X - mazePath.Head.position.X, nextCell.position.Y - mazePath.Head.position.Y)
                             stessoIndexPer <- myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
                     //segno che sono andato nella stessa direzione un'altra volta
                     stessoIndexPer <- stessoIndexPer - 1
@@ -188,7 +201,7 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
 
         //chiamo correzione delle celle bloccate
         ignore(makeWallIfBlocked())
-        ignore(linkExit (privateGetCell endPosition) (new Direction(-1, 0)))
+        ignore(linkExit (privateGetCell endPosition) (new Vector(-1, 0)))
         ignore(resetCellsStatus())
 
     do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
@@ -196,7 +209,7 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
     member this.H with get() = h
     member this.maze with get() = mutableMaze
 
-    member this.getCell (position:Position):MazeCell = privateGetCell position
+    member this.getCell (position:Vector):MazeCell = privateGetCell position
 
     member this.findSolution () =
        let mutable solution:MazeCell list = [this.getCell(startPosition)]
@@ -213,7 +226,7 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
     member this.generateMazeString () = privateGenMazeString()
 
 
-let initMaze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
+let initMaze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
     let myMaze:Maze = new Maze(W, H, startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
     let str = myMaze.generateMazeString()
 

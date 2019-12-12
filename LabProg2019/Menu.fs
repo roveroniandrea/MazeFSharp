@@ -26,8 +26,8 @@ type Button (etichetta:string, codice:ButtonAction) =
 let init ()  =
             let W = 150
             let H = 35
-            let startPosition: Position = new Position (0,1)
-            let endPosition: Position = new Position ((W/2)-1,H-2)
+            let startPosition: Vector = new Vector (0,1)
+            let endPosition: Vector = new Vector ((W/2)-1,H-2)
             let sameDirectionMin = 2
             let sameDirectionMax = 2
 
@@ -196,7 +196,7 @@ let init ()  =
                                                       st.indicatore.drawSprite(pixel.create('>', Color.White)) //flood_fill(0, 0, pixel.create('>', Color.Green))
                                                       0., 0.
                                              | _   -> 0., 0.
-                         let nextPosition: Position = new Position(int(st.player.x + dx) / 2, int(st.player.y + dy))
+                         let nextPosition: Vector = new Vector(int(st.player.x + dx) / 2, int(st.player.y + dy))
                          let nextCell: MazeCell = MyMaze.Value.getCell(nextPosition)
                          if not(nextCell.isWall) then st.player.move_by(dx, dy)
                          if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then winning.Play()
