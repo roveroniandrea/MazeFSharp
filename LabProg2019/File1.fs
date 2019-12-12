@@ -1,17 +1,8 @@
-﻿module LabProg2019.Prova
+﻿module LabProg2019.MazeGenerator
 
 //█   ▀▄
 
 open System
-open Engine
-open Gfx
-    
-
-[< NoEquality; NoComparison >]
-type state = {
-    player: int
-}
-//mori checchin
 
 type Direction (dirX:int, dirY:int) =
     //inizializzo random
@@ -28,6 +19,7 @@ type Direction (dirX:int, dirY:int) =
             newY <- myRandom.Next(3)  - 1
         new Direction (newX, newY)
 
+[<NoEquality; NoComparison>]
 type Position (x:int, y:int) =
     let mutable x = x
     let mutable y = y
@@ -38,6 +30,7 @@ type Position (x:int, y:int) =
         this.X >= 1 && this.X < (W-1) && this.Y >= 1 && this.Y < (H-1)
 
     member this.getTranslated (direction:Direction) = new Position(this.X + direction.dirX, this.Y + direction.dirY)
+
 
 //classe della singola cella
 type MazeCell (x:int, y:int, isWall:bool) =
@@ -220,7 +213,7 @@ type Maze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirec
     member this.generateMazeString () = privateGenMazeString()
 
 
-let main (W:int, H:int, startPosition:Position, endPosition:Position, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
+let initMaze (W:int, H:int, startPosition:Position, endPosition:Position, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
     let myMaze:Maze = new Maze(W, H, startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
     let str = myMaze.generateMazeString()
 

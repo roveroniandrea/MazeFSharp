@@ -1,11 +1,10 @@
 ﻿module LabProg2019.menu
 
 open System
-open System.IO
 open Engine
 open Gfx
 open System.Media
-open LabProg2019.Prova
+open LabProg2019.MazeGenerator
 
 type Status = Menu|InGame|Victory|ShowSolution|MenuTasti
 type ButtonAction = StartGame|Quit|MenuTasti
@@ -25,9 +24,6 @@ type Button (etichetta:string, codice:ButtonAction) =
 
 
 let init ()  =
-            
-            
-
             let W = 150
             let H = 35
             let startPosition: Position = new Position (0,1)
@@ -97,27 +93,17 @@ let init ()  =
             Console.Clear()
             let enter = char (13)
 
-            let arrowUP = char (38)
-            let arrowDown = char (40)
-            let arrowLeft = char (37)
-            let arrowRight = char (39)
-
             let mutable mazeString = ""
             let mutable MyMaze: Maze option = None
             let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), startPosition.X*2, startPosition.Y, 2)
             player.clear
-           //player.draw_rectangle(1,1, pixel.create('*', Color.Cyan)
+
             let mutable mazeSolution: MazeCell list = []
             let mutable spriteSolution: sprite list = []
 
             let myLoop (keyo : ConsoleKeyInfo option) (screen : wronly_raster) (st : state) =
                     if (st.status = Status.Menu) then 
-                                        
-                                        
                                 let mutable wantToQuit = false
-
-                                //screen.draw_text("MAZE",28 ,2, Color.Green)
-
                                 screen.draw_text("
                                 \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
                                 \219\219    | `-.  | `.  -_-_ _-_  _-  _- -_ -  .'|   |.'|     \219\219
@@ -147,7 +133,6 @@ let init ()  =
                                     arr_options.[i].Y <- 11 + 4 * i
                                     screen.draw_text(arr_options.[i].etichetta, 70, arr_options.[i].Y, Color.White)
                                 
-                                
                                 let dx, dy =
                                     match keyo with
                                     None -> 0. ,0.
@@ -160,7 +145,7 @@ let init ()  =
                                                                                          None -> ignore()
                                                                                         |Some button -> match button.codice with
                                                                                                         ButtonAction.StartGame -> st.status <- Status.InGame
-                                                                                                                                  let (MazeStr, myMaze) = Prova.main(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax)
+                                                                                                                                  let (MazeStr, myMaze) = initMaze(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax)
                                                                                                                                   mazeString <- MazeStr
                                                                                                                                   MyMaze <- Some(myMaze)
                                                                                                                                   st.player.drawSprite (pixel.create ('\219',Color.Cyan))
@@ -192,8 +177,6 @@ let init ()  =
                          //arrivo
                          screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
                          //movimento giocatore da fare
-
-                         //ignore(engine.show_sprites )
                          
                          let dx, dy =
                              match keyo with
