@@ -110,6 +110,14 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
             cell.isVisited <- true
             linkExit (privateGetCell (cell.position.getTranslated(direction))) direction
 
+    let linkPaths () =
+        List.iter (fun (cell:MazeCell) -> if cell.isWall then let adiacentCells: MazeCell list = privateGetAdiacentCells cell endPosition
+                                                              let notWallCells:MazeCell list = List.filter (fun (adjCell:MazeCell) -> not(adjCell.isWall)) adiacentCells
+                                                              let sameX:bool = notWallCells.Length = 2 && notWallCells.[0].position.X = notWallCells.[1].position.X
+                                                              let sameY:bool = notWallCells.Length = 2 && notWallCells.[0].position.Y = notWallCells.[1].position.Y
+                                                              if (sameX || sameY) && myRandom.Next(100) <=10 then cell.isWall <- false
+        ) mutableMaze
+
     //genera il labirinto 
     let rec generateMaze (startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
         //inizializzo
@@ -188,6 +196,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         //chiamo correzione delle celle bloccate
         ignore(makeWallIfBlocked())
         ignore(linkExit (privateGetCell endPosition) (new Vector(-1, 0)))
+        ignore(linkPaths())
         ignore(resetCellsStatus())
 
     do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
