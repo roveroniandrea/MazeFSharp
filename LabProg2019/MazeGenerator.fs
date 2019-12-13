@@ -114,6 +114,15 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
             cell.isVisited <- true
             linkExit (privateGetCell (cell.position.getTranslated(direction))) direction
 
+    ///Rompe qualche muro per rendere difficile il labirinto
+    let linkPaths () =
+        List.iter (fun (cell:MazeCell) -> if cell.isWall then let adiacentCells: MazeCell list = privateGetAdiacentCells cell endPosition
+                                                              let notWallCells:MazeCell list = List.filter (fun (adjCell:MazeCell) -> not(adjCell.isWall)) adiacentCells
+                                                              let sameX:bool = notWallCells.Length = 2 && notWallCells.[0].position.X = notWallCells.[1].position.X
+                                                              let sameY:bool = notWallCells.Length = 2 && notWallCells.[0].position.Y = notWallCells.[1].position.Y
+                                                              if (sameX || sameY) && myRandom.Next(100) <=10 then cell.isWall <- false
+        ) mutableMaze
+
     ///Genera il labirinto 
     let rec generateMaze (startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
         //inizializzo
@@ -202,6 +211,9 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         ignore(linkExit (privateGetCell endPosition) (new Vector(-1, 0)))
         //resetto lo stato delle celle
         ignore(resetCellsStatus())
+        //rompo qualche muro per rendere difficile il labirinto
+        ignore(linkPaths())
+         
     //genero il labirinto
     do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
 
@@ -222,7 +234,8 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
        let mutable solution: MazeCell list = []
        
 
-       for i = 0 to 10 do
+       for i = 0 to 50 do
+
            solution <- starCell::solution
 
            while not(solution.Head.position.isSameAs(endPosition)) do
@@ -233,7 +246,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
                 let notVisitedAdiacent: MazeCell list = List.filter (fun (cell:MazeCell) -> not(cell.isVisited) && not(cell.isWall)) adiacentCells
                 //se ce ne sono di non visitate ne scelgo una
                 if notVisitedAdiacent.Length > 0 then
-                    let nextCell:MazeCell = notVisitedAdiacent.[0]
+                    let nextCell:MazeCell = notVisitedAdiacent.[myRandom.Next(notVisitedAdiacent.Length)]
                     solution <- nextCell::solution
                 //altrimenti è un vicolo cieco e torno indietro
                 else solution <- solution.Tail
