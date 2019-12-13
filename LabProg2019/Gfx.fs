@@ -82,6 +82,15 @@ type wronly_raster (w, h) =
            for y = 0 to this.height - 1 do
                for x = 0 to this.width - 1 do
                    this.[x, y] <- carattere
+    
+    member this.drawMaze (maze: string, colore: Color) : unit =
+        let mutable i=0
+        for y = 0 to this.height - 1 do
+            for x = 0 to this.width - 1 do
+                this.[x, y] <- (pixel.create(maze.Chars(i), colore))
+                i <- i+1
+                
+    
 
     // commit
     abstract member commit : unit

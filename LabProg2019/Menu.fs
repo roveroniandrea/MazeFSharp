@@ -13,6 +13,7 @@ type ButtonAction = StartGame|Quit|MenuTasti
 type state = {
     player: sprite
     indicatore : sprite
+    maze : sprite
     mutable status: Status
 }
 
@@ -42,7 +43,7 @@ let init ()  =
             
             let engine = new engine (W, H)
 
-            let intro_game = new SoundPlayer("..\..\Game_sounds\intro.wav")
+            (*let intro_game = new SoundPlayer("..\..\Game_sounds\intro.wav")
             intro_game.Load()
             intro_game.PlayLooping()
 
@@ -54,7 +55,7 @@ let init ()  =
             winning.Load()
 
             let game_sound = new SoundPlayer("..\..\Game_sounds\ingame.wav")
-            game_sound.Load()
+            game_sound.Load()*)
 
 
             Console.ForegroundColor <- ConsoleColor.Green
@@ -91,7 +92,7 @@ let init ()  =
             "
             ignore(Console.ReadKey())
             
-            intro_game.Stop()
+            //intro_game.Stop()
 
             Console.Clear()
             let enter = char (13)
@@ -107,6 +108,7 @@ let init ()  =
             let myLoop (keyo : ConsoleKeyInfo option) (screen : wronly_raster) (st : state) =
                     if (st.status = Status.Menu) then 
                                 let mutable wantToQuit = false
+                                
                                 screen.draw_text("
                                 \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
                                 \219\219    | `-.  | `.  -_-_ _-_  _-  _- -_ -  .'|   |.'|     \219\219
@@ -139,7 +141,7 @@ let init ()  =
                                 let dx, dy =
                                     match keyo with
                                     None -> 0. ,0.
-                                    |Some key -> menu_sound.Play()
+                                    |Some key -> //menu_sound.Play()
                                                  match key.KeyChar with 
                                                       'w' -> 0., -4.
                                                     | 's' -> 0., 4.
@@ -156,12 +158,14 @@ let init ()  =
                                                                                                                                   st.player.x <- (float(startPosition.X*2))
                                                                                                                                   st.player.y <- float(startPosition.Y)
                                                                                                                                   st.indicatore.clear
-                                                                                                                                  game_sound.PlayLooping()
+                                                                                                                                  //game_sound.PlayLooping()
 
                                                                                                         |ButtonAction.Quit -> Environment.Exit(0)
                                                                                                                               wantToQuit <- true
+                                                                                                                              st.maze.clear
 
                                                                                                         |ButtonAction.MenuTasti -> st.status <- Status.MenuTasti
+                                                                                                                                   st.maze.clear
                                                                                     0., 0.
                                                     | _   -> 0., 0.
                                 st.indicatore.move_by(dx, dy)
@@ -174,7 +178,9 @@ let init ()  =
                                 st, wantToQuit
 
                     elif st.status = Status.InGame then
-                         screen.draw_text(mazeString, 0, 0, Color.DarkGray)
+                         
+                         st.maze.drawMaze((mazeString, Color.DarkGray))
+                         //screen.draw_text(mazeString, 0, 0, Color.DarkGray)
                          //partenza
                          screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
                          //arrivo
@@ -202,23 +208,25 @@ let init ()  =
                          let nextPosition: Vector = new Vector(int(st.player.x + dx) / 2, int(st.player.y + dy))
                          let nextCell: MazeCell = MyMaze.Value.getCell(nextPosition)
                          if not(nextCell.isWall) then st.player.move_by(dx, dy)
-                         if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then winning.Play()
+                         if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then //winning.Play()
                                                                                                              st.status <- Status.Victory
                          st, false
                     elif st.status = Status.Victory then 
                                                          
                                                          st.player.clear
+                                                         st.maze.clear
                                                          
                                                          screen.draw_text ("HAI VINTO!!",26,15,Color.Green)
                                                          screen.draw_text ("Premi un tasto per tornare al menu'",15,20,Color.Green)
                                                          
 
-                                                         if(keyo.IsSome) then winning.Stop()
+                                                         if(keyo.IsSome) then //winning.Stop()
                                                                               st.status <- Status.Menu
                                                                               st.indicatore.drawSprite(pixel.create('>', Color.White))
                                                          st,false
                     elif st.status = Status.ShowSolution then 
-                        screen.draw_text(mazeString, 0, 0, Color.DarkGray)
+                        //screen.draw_text(mazeString, 0, 0, Color.DarkGray)
+                        st.maze.drawMaze(mazeString,Color.DarkGray)
                         if mazeSolution.Length = 0 then
                                                         mazeSolution <- MyMaze.Value.findSolution()
                                                         spriteSolution <- []
@@ -226,6 +234,8 @@ let init ()  =
                         
                         if(keyo.IsSome) then st.status <- Status.Menu
                                              st.indicatore.drawSprite(pixel.create('>', Color.White))
+                                             st.maze.clear
+
                                              List.iter (fun (mySprite:sprite) -> (*mySprite.clear*) engine.removeSprite(mySprite)) spriteSolution
                                              mazeSolution <- []
                         st, false
@@ -256,7 +266,7 @@ let init ()  =
                         \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
                         ", 19, 4, Color.Green)
 
-                        if(keyo.IsSome) then winning.Stop()
+                        if(keyo.IsSome) then //winning.Stop()
                                              st.status <- Status.Menu
                                              st.indicatore.drawSprite(pixel.create('>', Color.White))
 
@@ -264,11 +274,13 @@ let init ()  =
                     else st, false
 
             let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 25, 11, 1)
+            let Maze = engine.create_and_register_sprite (image.rectangle (W,H, pixel.create(' ',Color.DarkBlue)),0,0,1)
 
             // initialize state
             let st0 = {
                     player = player
                     indicatore = freccia
+                    maze = Maze
                     status = Status.MenuTasti
                     }
             engine.show_fps <- false

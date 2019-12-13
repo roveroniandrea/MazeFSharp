@@ -93,7 +93,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
             //altrimenti è una via
             else stringResult <- stringResult + "  "
             //vado a capo se ho raggiunto la fine della riga
-            if position.X = (w - 1) then stringResult <- stringResult + "\n"
+            //if position.X = (w - 1) then stringResult <- stringResult + "\n"
         stringResult
 
     //tutte le celle con isBlocked vengono messe isWall
@@ -203,23 +203,38 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
 
     //trova la soluzione in MazeCell list
     member this.findSolution () =
-       let mutable solution: MazeCell list = [this.getCell(startPosition)]
-       //finchè non arrivo alla fine
-       while not(solution.Head.position.isSameAs(endPosition)) do
-            solution.Head.isVisited <- true
-            //trovo le celle adiacenti
-            let adiacentCells : MazeCell list = privateGetAdiacentCells solution.Head endPosition
-            //prendo quelle non visitate
-            let notVisitedAdiacent: MazeCell list = List.filter (fun (cell:MazeCell) -> not(cell.isVisited) && not(cell.isWall)) adiacentCells
-            //se ce ne sono di non visitate ne scelgo una
-            if notVisitedAdiacent.Length > 0 then
-                let nextCell:MazeCell = notVisitedAdiacent.[0]
-                solution <- nextCell::solution
-            //altrimenti è un vicolo cieco e torno indietro
-            else solution <- solution.Tail
-       solution
 
-    //genera la stringa stampabile dalla lista di celle
+       let mutable bestSolution: MazeCell list =[]
+       let starCell = this.getCell(startPosition)
+       let mutable solution: MazeCell list = []
+       
+
+       for i = 0 to 10 do
+           solution <- starCell::solution
+
+           while not(solution.Head.position.isSameAs(endPosition)) do
+                solution.Head.isVisited <- true
+                //trovo le celle adiacenti
+                let adiacentCells : MazeCell list = privateGetAdiacentCells solution.Head endPosition
+                //prendo quelle non visitate
+                let notVisitedAdiacent: MazeCell list = List.filter (fun (cell:MazeCell) -> not(cell.isVisited) && not(cell.isWall)) adiacentCells
+                //se ce ne sono di non visitate ne scelgo una
+                if notVisitedAdiacent.Length > 0 then
+                    let nextCell:MazeCell = notVisitedAdiacent.[0]
+                    solution <- nextCell::solution
+                //altrimenti è un vicolo cieco e torno indietro
+                else solution <- solution.Tail
+
+           if(i=0) then bestSolution <-solution
+                        solution <-[]
+                        ignore(resetCellsStatus())
+
+           elif(bestSolution.Length>=solution.Length)then bestSolution <-solution
+                                                          solution <-[]
+                                                          ignore(resetCellsStatus())
+
+       bestSolution
+
     member this.generateMazeString () = privateGenMazeString()
 
 //funzione di init. Genera un labirinto e lo ritorna insieme alla stringa da stampare
