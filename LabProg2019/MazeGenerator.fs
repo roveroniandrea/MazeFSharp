@@ -234,7 +234,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
        let mutable solution: MazeCell list = []
        
 
-       for i = 0 to 50 do
+       for i = 0 to 100 do
 
            solution <- starCell::solution
 
