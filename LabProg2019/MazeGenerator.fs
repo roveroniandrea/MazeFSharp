@@ -1,13 +1,12 @@
 ﻿module LabProg2019.MazeGenerator
 
-//█   ▀▄
-
 open System
 
 //inizializzo random
 let myRandom = new Random()
 
 [<NoComparison;NoEquality>]
+///Type used for the direction 
 type Vector (x:int, y:int) =
     let mutable x = x
     let mutable y = y
@@ -15,7 +14,7 @@ type Vector (x:int, y:int) =
     member this.X with get() = x
     member this.Y with get() = y
 
-    //ritorna true o false se la posizione è all'interno del labirinto
+    ///Ritorna true o false se la posizione è all'interno del labirinto
     member this.isInsideMaze (W:int) (H:int):bool =
         this.X >= 1 && this.X < (W-1) && this.Y >= 1 && this.Y < (H-1)
 
@@ -23,7 +22,7 @@ type Vector (x:int, y:int) =
 
     member this.isSameAs (other:Vector) = this.X = other.X && this.Y = other.Y
 
-    //ritorna una direzione che non sia l'opposta
+    ///Ritorna una direzione che non sia l'opposta
     member this.compatibleDirection () =
         let mutable newX = myRandom.Next(3)  - 1
         let mutable newY = myRandom.Next(3)  - 1
@@ -32,27 +31,32 @@ type Vector (x:int, y:int) =
             newY <- myRandom.Next(3)  - 1
         new Vector (newX, newY)
 
-//classe della singola cella
+///Classe della singola cella
 type MazeCell (x:int, y:int, isWall:bool) =
+    
     let mutable mutableIsWall:bool = isWall
     let mutable mutableVisited: bool = false
     let mutable mutableBlocked: bool = false
     let mutable mutablePosition: Vector = new Vector(x, y)
 
+    ///Metodo che imposta o restituisce true/false se una cella è muro o meno
     member this.isWall with get() = mutableIsWall and set(value) = mutableIsWall <- value
+    ///Metodo che imposta o restituisce true/false se una cella è stata visitata o meno
     member this.isVisited with get() = mutableVisited and set(value) = mutableVisited <- value
+    ///Metodo che imposta o restituisce true/false se una cella è bloccata o meno
     member this.isBlocked with get() = mutableBlocked and set(value) = mutableBlocked <- value
+    ///Metodo che restituisce la posizione della cella
     member this.position with get() = mutablePosition        
 
 
-
+///Tipo del labirinto
 type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
     let w = W
     let h = H
     let mutable mutableMaze = List.init (W * H) (fun (cellIndex) -> new MazeCell(cellIndex % w, cellIndex / w, true))
     let privateGetCell (position:Vector):MazeCell = mutableMaze.[(position.Y * w) + position.X]
 
-    //ritorna tutte le celle adiacenti ad essa se sono all'interno del labirinto
+    ///ritorna tutte le celle adiacenti ad essa se sono all'interno del labirinto
     let privateGetAdiacentCells (cell:MazeCell) (endPosition:Vector)=
         let mutable resultCells: MazeCell list = []
 
@@ -73,7 +77,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         addIfInsideMaze (cell.position.getTranslated(direction))
         resultCells
 
-    //ritorna una stringa
+    ///Ritorna la stringa rappresentante il labirinto
     let privateGenMazeString () =
         let mutable stringResult = ""
         //per ogni cella
@@ -92,47 +96,54 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
                 then stringResult <- stringResult + "  "
             //altrimenti è una via
             else stringResult <- stringResult + "  "
-            //vado a capo se ho raggiunto la fine della riga
-            //if position.X = (w - 1) then stringResult <- stringResult + "\n"
         stringResult
 
-    //tutte le celle con isBlocked vengono messe isWall
+    ///Trasforma le celle con isBlocked in celle con isWall
     let makeWallIfBlocked () =
         List.iter (fun (cell:MazeCell) -> if cell.isBlocked then cell.isWall <- true) mutableMaze
 
+    ///Resetta le proprietà delle celle (cell.isBlocked <- false / cell.isVisited <- false)
     let resetCellsStatus () =
         List.iter (fun (cell:MazeCell) -> cell.isBlocked <- false
                                           cell.isVisited <- false) mutableMaze
 
+    ///Collega l'uscita con la prima via che trova muovendosi verso il centro del labirinto(work in progress)
     let rec linkExit (cell:MazeCell) (direction:Vector) =
         if not(cell.isVisited) then
             cell.isWall <- false
             cell.isVisited <- true
             linkExit (privateGetCell (cell.position.getTranslated(direction))) direction
 
-    //genera il labirinto 
+    ///Genera il labirinto 
     let rec generateMaze (startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
         //inizializzo
         let startCell = privateGetCell startPosition
         startCell.isVisited <- true
         startCell.isWall <- false
+        //Inizializzo il percorso del labirinto. La prima cella corrisponde alla cella di partenza
         let mutable mazePath:MazeCell list = [startCell]
         let myRandom = Random()
+
+        ///Usato per creare corridoi "lunghi"
         let mutable stessoIndexPer = myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
         let mutable currentDirection = new Vector(1, 0)
+
+        //Usato per verificare se il labirinto è stato esplorato per intero
         let mutable mazeCompleatelyExplored = false
 
+        //Se il labirinto non è stato tutto visitato, continuo a visitare
         while not(mazeCompleatelyExplored) do
+            //se "l'esploratore" è tornato alla posiziobe iniale, significa che il labirinto è stato tutto visitato
             if mazePath.Length = 0 then mazeCompleatelyExplored <- true
             else
-                //ottengo tutte le celle adiacenti a quella corrente
+                ///Restituisce tutte le celle adiacenti a quella corrente
                 let adiacentCells:MazeCell list = privateGetAdiacentCells(privateGetCell mazePath.Head.position) (endPosition)
-                //sottolista delle celle non visitate tra quelle adiacenti
+                ///Sottolista delle celle non visitate tra quelle adiacenti alla posizione corrente
                 let notVisitedCells = List.filter (fun (cell:MazeCell) -> not(cell.isVisited)) adiacentCells
-                //sottolista delle celle non bloccate tra quelle non visitate
+                ///Sottolista delle celle non bloccate tra quelle non visitate
                 let notBlockedList = List.filter (fun (cell:MazeCell) -> not(cell.isBlocked))  notVisitedCells
                     
-                //se ci sono delle celle non visitate e delle celle non bloccate
+                //se ci sono delle celle non visitate e celle non bloccate
                 if notBlockedList.Length > 0 then
                     //inizializzo nextCell
                     let mutable nextCell = notBlockedList.[myRandom.Next(notBlockedList.Length)]
@@ -149,14 +160,14 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
                         //se esiste la scelgo
                         if containsStessaDirezione then
                             nextCell <- List.find (fun (cell:MazeCell) -> (cell.position.X - mazePath.Head.position.X) = currentDirection.X && (cell.position.Y - mazePath.Head.position.Y) = currentDirection.Y) notBlockedList
-                        //altrimenti ne prendo uan a caso (DUPLICATO da if precedente)
+                        //altrimenti ne prendo una a caso (DUPLICATO da if precedente)
                         else
                             nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
                             currentDirection <- new Vector(nextCell.position.X - mazePath.Head.position.X, nextCell.position.Y - mazePath.Head.position.Y)
                             stessoIndexPer <- myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
-                    //segno che sono andato nella stessa direzione un'altra volta
+                    //segno che ho proseguito nella stessa direzione
                     stessoIndexPer <- stessoIndexPer - 1
-                    //blocco tutte le celle adiacenti
+                    //blocco tutte le celle adiacenti tranne quella che ho scelto come prossima cella
                     List.iter (fun (cell:MazeCell) -> if (cell <> nextCell) then cell.isBlocked <- true) notVisitedCells
                     //questa cella è visitata
                     nextCell.isVisited <- true
@@ -165,7 +176,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
                     //la aggiungo in testa al percorso del labirinto
                     mazePath <- nextCell::mazePath
 
-                //se invece la cella corrente non ha celle non bloccate
+                //se invece la cella corrente ha celle adiacenti tutte bloccate
                 else
                     //ottengo la prima cella sbloccabile se esiste
                     let existsUnblockableCell = List.tryFind (fun (cell:MazeCell) -> 
@@ -187,9 +198,11 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
 
         //chiamo correzione delle celle bloccate
         ignore(makeWallIfBlocked())
+        //collego l'uscita con la prima strada disponibile
         ignore(linkExit (privateGetCell endPosition) (new Vector(-1, 0)))
+        //resetto lo stato delle celle
         ignore(resetCellsStatus())
-
+    //genero il labirinto
     do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
 
     //getter di w e h
@@ -201,7 +214,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
     //ottiene la cella ad una certa posizione
     member this.getCell (position:Vector):MazeCell = privateGetCell position
 
-    //trova la soluzione in MazeCell list
+    //trova la soluzione più corta per uscire dal labirinto
     member this.findSolution () =
 
        let mutable bestSolution: MazeCell list =[]
