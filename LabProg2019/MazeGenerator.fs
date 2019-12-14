@@ -208,7 +208,12 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         //chiamo correzione delle celle bloccate
         ignore(makeWallIfBlocked())
         //collego l'uscita con la prima strada disponibile
-        ignore(linkExit (privateGetCell endPosition) (new Vector(-1, 0)))
+        let linkToDirection = match (endPosition.X, endPosition.Y) with
+                              (0, _) -> new Vector(1, 0)
+                              |(_, 0) -> new Vector(0, 1)
+                              |(_, _) when endPosition.Y = (H - 1) -> new Vector(0, -1)
+                              |(_, _) -> new Vector(-1, 0)
+        ignore(linkExit (privateGetCell endPosition) linkToDirection)
         //resetto lo stato delle celle
         ignore(resetCellsStatus())
         //rompo qualche muro per rendere difficile il labirinto
@@ -258,6 +263,9 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
            elif(bestSolution.Length>=solution.Length)then bestSolution <-solution
                                                           solution <-[]
                                                           ignore(resetCellsStatus())
+           //andrebbe resettato ad ogni ciclo, però il tempo di risoluzione arriva a un secondo
+           else solution <-[]
+                ignore(resetCellsStatus())
 
        bestSolution
 
