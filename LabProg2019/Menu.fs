@@ -24,6 +24,9 @@ type Button (etichetta:string, codice:ButtonAction) =
     member this.Y with get() = y and set(value) = y <- value
 
 
+let distanceBetweenPoints (x1:int, y1:int, x2:int, y2:int) =
+    sqrt (float(((pown (x1 - x2) 2) + pown (y1 - y2) 2)))
+
 let init ()  =
             let W = 150
             let H = 35
@@ -181,7 +184,8 @@ let init ()  =
                     elif st.status = Status.InGame then
                          
                          //st.maze.drawMaze((mazeString, Color.DarkGray))
-                         
+                         st.maze.clear
+                         List.iter (fun (cell:MazeCell) -> if cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7. then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
                          //partenza
                          screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
                          //arrivo
