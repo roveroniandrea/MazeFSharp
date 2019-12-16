@@ -184,8 +184,8 @@ let init ()  =
                     elif st.status = Status.InGame then
                          
                          //st.maze.drawMaze((mazeString, Color.DarkGray))
-                         st.maze.clear
-                         List.iter (fun (cell:MazeCell) -> if cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7. then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                         //st.maze.clear
+                         //List.iter (fun (cell:MazeCell) -> if cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7. then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
                          //partenza
                          screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
                          //arrivo
@@ -238,7 +238,13 @@ let init ()  =
 
 
                         if mazeSolution.Length = 0 then
-                                                        mazeSolution <- MyMaze.Value.findSolution()
+                                                        let startCell:MazeCell = MyMaze.Value.getCell(startPosition)
+                                                        startCell.weight <- 0
+                                                        mazeSolution <- MyMaze.Value.weightedSolution([startCell])//MyMaze.Value.findSolution()
+                                                        (*List.iter (fun (cell:MazeCell) -> 
+                                                            if not(cell.isWall) then
+                                                                screen.draw_text(string(cell.weight), cell.position.X * 2, cell.position.Y, Color.White)
+                                                        ) MyMaze.Value.maze*)
                                                         spriteSolution <- []
                         
                                                         List.iter (fun (cell:MazeCell) -> (spriteSolution <- (engine.create_and_register_sprite (image.rectangle(2, 1, pixel.create('@', Color.DarkCyan)), cell.position.X * 2, cell.position.Y, 1)) :: spriteSolution)) mazeSolution

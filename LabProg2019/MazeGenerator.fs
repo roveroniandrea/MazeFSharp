@@ -38,6 +38,7 @@ type MazeCell (x:int, y:int, isWall:bool) =
     let mutable mutableVisited: bool = false
     let mutable mutableBlocked: bool = false
     let mutable mutablePosition: Vector = new Vector(x, y)
+    let mutable mutableWeight:int = -1
 
     ///Metodo che imposta o restituisce true/false se una cella è muro o meno
     member this.isWall with get() = mutableIsWall and set(value) = mutableIsWall <- value
@@ -46,7 +47,9 @@ type MazeCell (x:int, y:int, isWall:bool) =
     ///Metodo che imposta o restituisce true/false se una cella è bloccata o meno
     member this.isBlocked with get() = mutableBlocked and set(value) = mutableBlocked <- value
     ///Metodo che restituisce la posizione della cella
-    member this.position with get() = mutablePosition        
+    member this.position with get() = mutablePosition   
+    
+    member this.weight with get() = mutableWeight and set(value) = mutableWeight <- value
 
 
 ///Tipo del labirinto
@@ -268,6 +271,40 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
                 ignore(resetCellsStatus())
 
        bestSolution
+
+    ///Assigns to every cell a weight and follows the lower weighted path
+    member this.weightedSolution (currentProcessCells:MazeCell list) =
+        //cell that will be evaluated in next recursion
+        let mutable nextCellToProcess = []
+        //for each cell to evaluate
+        List.iter (fun (currentCell:MazeCell) -> 
+            //get a list of all adiacent cells not wall
+            let adiacentNotWallCells = List.filter (fun (cell:MazeCell) -> not(cell.isWall)) (privateGetAdiacentCells currentCell endPosition)
+            
+            List.iter (fun (cell:MazeCell) -> 
+                //for each of them, if the cell has more weight of the current cell it needs to be revaluated
+                if cell.weight > currentCell.weight + 1 || cell.weight = -1 then
+                    //so change its weight
+                    cell.weight <- currentCell.weight + 1
+                    //and add to next cell to process
+                    nextCellToProcess <- cell::nextCellToProcess
+            ) adiacentNotWallCells
+        ) currentProcessCells
+        //repeat if more cells need to be processed
+        if nextCellToProcess.Length > 0 then this.weightedSolution nextCellToProcess
+        //else start backtracking alghoritm
+        else let rec backTracking (cell:MazeCell) =
+                //selecting all adiacent not walls cells
+                let adiacentNotWallCells = List.filter (fun (cell:MazeCell) -> not(cell.isWall)) (privateGetAdiacentCells cell endPosition)
+                //get the cell with lowest weight
+                let lowestCell = List.minBy (fun (adiacentCell:MazeCell) -> adiacentCell.weight) adiacentNotWallCells
+                //if adiacent cell ha lower weight add current cell to solution and repeat recursively
+                if lowestCell.weight < cell.weight then
+                    cell::backTracking lowestCell
+                //otherwise the path is finished 
+                else cell::[privateGetCell startPosition]
+             //starting from the end
+             in backTracking (privateGetCell endPosition)
 
     member this.generateMazeString () = privateGenMazeString()
 
