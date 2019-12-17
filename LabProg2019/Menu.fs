@@ -186,14 +186,16 @@ let init ()  =
                          //st.maze.drawMaze((mazeString, Color.DarkGray))
                          if(st.mode = Mode.Blind) then 
                              st.maze.clear
-                             List.iter (fun (cell:MazeCell) -> if cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7. then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                             List.iter (fun (cell:MazeCell) -> if ((cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7.)) then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze 
+                             if (distanceBetweenPoints (endPosition.X * 2, endPosition.Y, int(st.player.x), int(st.player.y))<=7.) then screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
+                             if (distanceBetweenPoints (startPosition.X * 2, startPosition.Y, int(st.player.x), int(st.player.y))<=7.) then screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.Green)
                          else
                              List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                             //partenza
+                             screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
+                             //arrivo
+                             screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
                          
-                         //partenza
-                         screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
-                         //arrivo
-                         screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
                          //movimento giocatore da fare
                          
                          let dx, dy =
@@ -244,10 +246,13 @@ let init ()  =
 
 
                         if mazeSolution.Length = 0 then
-                                                        mazeSolution <- MyMaze.Value.findSolution()
+                                                        let startCell = MyMaze.Value.getCell(startPosition)
+                                                        startCell.weight <- 0
+
+                                                        mazeSolution <- MyMaze.Value.weightedSolution([startCell])
                                                         spriteSolution <- []
                         
-                                                        List.iter (fun (cell:MazeCell) -> (spriteSolution <- (engine.create_and_register_sprite (image.rectangle(2, 1, pixel.create('@', Color.DarkCyan)), cell.position.X * 2, cell.position.Y, 1)) :: spriteSolution)) mazeSolution
+                                                        List.iter (fun (cell:MazeCell) -> (spriteSolution <- (engine.create_and_register_sprite (image.rectangle(2, 1, pixel.create('\219', Color.DarkCyan)), cell.position.X * 2, cell.position.Y, 1)) :: spriteSolution)) mazeSolution
                         if(keyo.IsSome) then st.status <- Status.Menu
                                              st.indicatore.drawSprite(pixel.create('>', Color.White))
                                              st.maze.clear
