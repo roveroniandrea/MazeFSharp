@@ -6,14 +6,16 @@ open Gfx
 open System.Media
 open LabProg2019.MazeGenerator
 
-type Status = Menu|InGame|Victory|ShowSolution|MenuTasti
-type ButtonAction = StartGame|Quit|MenuTasti
+type Status = Menu|InGame|Victory|ShowSolution|MenuTasti|SelectMode
+type ButtonAction = StartGame|Quit|MenuTasti|Arcade|Blind
+type Mode = Arcade|Blind
 
 [< NoEquality; NoComparison >]
 type state = {
     player: sprite
     indicatore : sprite
     maze : sprite
+    mutable mode: Mode
     mutable status: Status
 }
 
@@ -23,6 +25,30 @@ type Button (etichetta:string, codice:ButtonAction) =
     member this.codice:ButtonAction = codice
     member this.Y with get() = y and set(value) = y <- value
 
+let printMenu ="
+    \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
+    \219\219    | `-.  | `.  -_-_ _-_  _-  _- -_ -  .'|   |.'|     \219\219
+    \219\219._  |    |`!  |`.  -_ -__ -_ _- _-_-  .'  |.;'   |   _.\219\219
+    \219\219| `-!._  |  `;!  ;. _______________ ,'| .-' |   _!.i'  \219\219
+    \219\219|     |`-!._ | `.| [@]           [@]|.''|  _!.;'   |   \219\219
+    \219\219'..__ |    |`';.| i|_|  -------  |_|'| _!-|   |   _|..-\219\219
+    \219\219    |``--..|_ | `;!|i| |       | |i|.'j   |_..!-'|     \219\219
+    \219\219    |    |   |`-,!_|_|  -------  |_||.!-;'  |    |     \219\219
+    \219\219____|____!.,.!,.!,!|i|           |i|,!,.!.,.!..__|_____\219\219
+    \219\219|     |    |  |  | |_|  -------  |_|| |   |   |    |   \219\219
+    \219\219|     |    |..!-;'i|i| |       | |i| |`-..|   |    |   \219\219
+    \219\219|    _!.-j'  | _!,'|_|  -------  |_||!._|  `i-!.._ |   \219\219
+    \219\219!.-'|    | _.'|  !;|i|           |i|`.| `-._|    |``-..\219\219
+    \219\219    |  _.''|  !-| !|_|  -------  |_|.|`-. | ``._ |     \219\219
+    \219\219    |.|    |.|  !| |i| |       | |i||`. |`!   | `'.    \219\219
+    \219\219_.-'  |  .'  |.' |/|_|  -------  |_|! |`!  `,.|    |-._\219\219
+    \219\219|     !.'|  .'| .'|[@]___________[@] \|  `. | `._  |   \219\219
+    \219\219|   .'   |.|  |/| /                 \|`.  |`!    |.|   \219\219
+    \219\219|_.'|   .' | .' |/                   \  \ |  `.  | `._-\219\219
+    \219\219'   | .'   |/|  /                     \ |`!   |`.|    `\219\219
+    \219\219    !'|   .' | /                       \|  `  |  `.    \219\219
+    \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
+    " 
 
 let distanceBetweenPoints (x1:int, y1:int, x2:int, y2:int) =
     sqrt (float(((pown (x1 - x2) 2) + pown (y1 - y2) 2)))
@@ -42,6 +68,10 @@ let init ()  =
             let arr_options:Button list = [ new Button ("Play!", ButtonAction.StartGame);
                                             new Button ("Tasti", ButtonAction.MenuTasti);
                                             new Button ("Exit!", ButtonAction.Quit)
+                                          ]
+
+            let modeButtons:Button list = [ new Button ("Easy!", ButtonAction.Arcade);
+                                            new Button ("Blind", ButtonAction.Blind)
                                           ]
             
             let engine = new engine (W, H)
@@ -112,30 +142,7 @@ let init ()  =
                     if (st.status = Status.Menu) then 
                                 let mutable wantToQuit = false
                                 
-                                screen.draw_text("
-                                \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
-                                \219\219    | `-.  | `.  -_-_ _-_  _-  _- -_ -  .'|   |.'|     \219\219
-                                \219\219._  |    |`!  |`.  -_ -__ -_ _- _-_-  .'  |.;'   |   _.\219\219
-                                \219\219| `-!._  |  `;!  ;. _______________ ,'| .-' |   _!.i'  \219\219
-                                \219\219|     |`-!._ | `.| [@]           [@]|.''|  _!.;'   |   \219\219
-                                \219\219'..__ |    |`';.| i|_|  -------  |_|'| _!-|   |   _|..-\219\219
-                                \219\219    |``--..|_ | `;!|i| |       | |i|.'j   |_..!-'|     \219\219
-                                \219\219    |    |   |`-,!_|_|  -------  |_||.!-;'  |    |     \219\219
-                                \219\219____|____!.,.!,.!,!|i|           |i|,!,.!.,.!..__|_____\219\219
-                                \219\219|     |    |  |  | |_|  -------  |_|| |   |   |    |   \219\219
-                                \219\219|     |    |..!-;'i|i| |       | |i| |`-..|   |    |   \219\219
-                                \219\219|    _!.-j'  | _!,'|_|  -------  |_||!._|  `i-!.._ |   \219\219
-                                \219\219!.-'|    | _.'|  !;|i|           |i|`.| `-._|    |``-..\219\219
-                                \219\219    |  _.''|  !-| !|_|  -------  |_|.|`-. | ``._ |     \219\219
-                                \219\219    |.|    |.|  !| |i| |       | |i||`. |`!   | `'.    \219\219
-                                \219\219_.-'  |  .'  |.' |/|_|  -------  |_|! |`!  `,.|    |-._\219\219
-                                \219\219|     !.'|  .'| .'|[@]___________[@] \|  `. | `._  |   \219\219
-                                \219\219|   .'   |.|  |/| /                 \|`.  |`!    |.|   \219\219
-                                \219\219|_.'|   .' | .' |/                   \  \ |  `.  | `._-\219\219
-                                \219\219'   | .'   |/|  /                     \ |`!   |`.|    `\219\219
-                                \219\219    !'|   .' | /                       \|  `  |  `.    \219\219
-                                \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
-                                ", 11, 4, Color.Green)
+                                screen.draw_text(printMenu, 39, 4, Color.Green)
 
                                 for i=0 to arr_options.Length - 1 do
                                     arr_options.[i].Y <- menuYstart + menuYIncrease * float(i)
@@ -152,24 +159,17 @@ let init ()  =
                                                                                     in match clickedButton with
                                                                                          None -> ignore()
                                                                                         |Some button -> match button.codice with
-                                                                                                        ButtonAction.StartGame -> st.status <- Status.InGame
-                                                                                                                                  let (MazeStr, myMaze) = initMaze(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax)
-                                                                                                                                  mazeString <- MazeStr
-                                                                                                                                  MyMaze <- Some(myMaze)
-                                                                                                                                  st.player.drawSprite (pixel.create ('\219',Color.Cyan))
-                                                                                                                                  //resetto la posizione a quella di partenza
-                                                                                                                                  st.player.x <- (float(startPosition.X*2))
-                                                                                                                                  st.player.y <- float(startPosition.Y)
-                                                                                                                                  st.indicatore.clear
-                                                                                                                                  game_sound.PlayLooping()
-                                                                                                                                  List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                                                                                                        ButtonAction.StartGame -> st.status <- Status.SelectMode
 
                                                                                                         |ButtonAction.Quit -> Environment.Exit(0)
                                                                                                                               wantToQuit <- true
                                                                                                                               st.maze.clear
+                                                                                                                              st.mode <- Mode.Arcade
+
 
                                                                                                         |ButtonAction.MenuTasti -> st.status <- Status.MenuTasti
                                                                                                                                    st.maze.clear
+                                                                                                        |_ -> ignore()
                                                                                     0., 0.
                                                     | _   -> 0., 0.
                                 st.indicatore.move_by(dx, dy)
@@ -184,8 +184,12 @@ let init ()  =
                     elif st.status = Status.InGame then
                          
                          //st.maze.drawMaze((mazeString, Color.DarkGray))
-                         st.maze.clear
-                         List.iter (fun (cell:MazeCell) -> if cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7. then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                         if(st.mode = Mode.Blind) then 
+                             st.maze.clear
+                             List.iter (fun (cell:MazeCell) -> if cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7. then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                         else
+                             List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                         
                          //partenza
                          screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
                          //arrivo
@@ -233,6 +237,8 @@ let init ()  =
                     elif st.status = Status.ShowSolution then 
                        
                          //st.maze.drawMaze(mazeString,Color.DarkGray)
+                        if st.mode = Mode.Blind then List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+
 
                         //List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
 
@@ -281,6 +287,61 @@ let init ()  =
                                              st.indicatore.drawSprite(pixel.create('>', Color.White))
 
                         st, false
+
+                    elif st.status = Status.SelectMode then 
+                        
+                        screen.draw_text(printMenu, 39, 4, Color.Green)
+
+                        for i=0 to modeButtons.Length - 1 do
+                            modeButtons.[i].Y <- menuYstart + menuYIncrease * float(i)
+                            screen.draw_text(modeButtons.[i].etichetta, 70, int(modeButtons.[i].Y), Color.White)
+                        
+                        let dx, dy =
+                            match keyo with
+                            None -> 0. ,0.
+                            |Some key -> menu_sound.Play()
+                                         match key.KeyChar with 
+                                              'w' -> 0., -4.
+                                            | 's' -> 0., 4.
+                                            | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = st.indicatore.y) modeButtons
+                                                                            in match clickedButton with
+                                                                                 None -> ignore()
+                                                                                |Some button -> match button.codice with
+                                                                                                    ButtonAction.Arcade -> st.mode <- Mode.Arcade
+                                                                                                                           st.status <- Status.InGame
+
+                                                                                                                          
+                                                                                                    |ButtonAction.Blind -> st.mode <- Mode.Blind
+                                                                                                                           st.status <- Status.InGame
+
+                                                                                                
+                                                                                                    |_ -> ignore()
+
+                                                                                                let (MazeStr, myMaze) = initMaze(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax)
+                                                                                                mazeString <- MazeStr
+                                                                                                MyMaze <- Some(myMaze)
+                                                                                                st.player.drawSprite (pixel.create ('\219',Color.Cyan))
+                                                                                                //resetto la posizione a quella di partenza
+                                                                                                st.player.x <- (float(startPosition.X*2))
+                                                                                                st.player.y <- float(startPosition.Y)
+                                                                                                st.indicatore.clear
+                                                                                                game_sound.PlayLooping()
+
+                                                                                                
+                                                                                                
+                                                                                                
+                                                                            0., 0.
+
+                                            | _   -> 0., 0.
+                        st.indicatore.move_by(dx, dy)
+
+                        st.indicatore.x <- 67.0
+
+                        if (st.indicatore.y < 11.) then st.indicatore.y <- menuYstart + menuYIncrease * float(arr_options.Length - 1)
+                            else if st.indicatore.y > menuYstart + menuYIncrease * float(arr_options.Length - 1)
+                                    then st.indicatore.y <- 11.
+
+                        st, false
                     else st, false
 
             let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 25, 11, 1)
@@ -291,6 +352,7 @@ let init ()  =
                     player = player
                     indicatore = freccia
                     maze = Maze
+                    mode = Mode.Arcade
                     status = Status.MenuTasti
                     }
             engine.show_fps <- false
