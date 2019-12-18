@@ -270,9 +270,3 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
              //starting from the end
              in backTracking (privateGetCell endPosition)
 
-//TODO: usare direttamente new Maze()
-let initMaze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
-    let myMaze:Maze = new Maze(W, H, startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
-    //let str = myMaze.generateMazeString()
-    ("", myMaze)
-

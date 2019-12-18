@@ -19,39 +19,48 @@ type state = {
     mutable status: Status
 }
 
-type Button (etichetta:string, codice:ButtonAction) =
+type Button (etichetta:string, actionCode:ButtonAction) =
     let mutable y = 0.
     member this.etichetta = etichetta
-    member this.codice:ButtonAction = codice
+    member this.actionCode:ButtonAction = actionCode
     member this.Y with get() = y and set(value) = y <- value
-
-let printMenu ="
-    \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
-    \219\219    | `-.  | `.  -_-_ _-_  _-  _- -_ -  .'|   |.'|     \219\219
-    \219\219._  |    |`!  |`.  -_ -__ -_ _- _-_-  .'  |.;'   |   _.\219\219
-    \219\219| `-!._  |  `;!  ;. _______________ ,'| .-' |   _!.i'  \219\219
-    \219\219|     |`-!._ | `.| [@]           [@]|.''|  _!.;'   |   \219\219
-    \219\219'..__ |    |`';.| i|_|  -------  |_|'| _!-|   |   _|..-\219\219
-    \219\219    |``--..|_ | `;!|i| |       | |i|.'j   |_..!-'|     \219\219
-    \219\219    |    |   |`-,!_|_|  -------  |_||.!-;'  |    |     \219\219
-    \219\219____|____!.,.!,.!,!|i|           |i|,!,.!.,.!..__|_____\219\219
-    \219\219|     |    |  |  | |_|  -------  |_|| |   |   |    |   \219\219
-    \219\219|     |    |..!-;'i|i| |       | |i| |`-..|   |    |   \219\219
-    \219\219|    _!.-j'  | _!,'|_|  -------  |_||!._|  `i-!.._ |   \219\219
-    \219\219!.-'|    | _.'|  !;|i|           |i|`.| `-._|    |``-..\219\219
-    \219\219    |  _.''|  !-| !|_|  -------  |_|.|`-. | ``._ |     \219\219
-    \219\219    |.|    |.|  !| |i| |       | |i||`. |`!   | `'.    \219\219
-    \219\219_.-'  |  .'  |.' |/|_|  -------  |_|! |`!  `,.|    |-._\219\219
-    \219\219|     !.'|  .'| .'|[@]___________[@] \|  `. | `._  |   \219\219
-    \219\219|   .'   |.|  |/| /                 \|`.  |`!    |.|   \219\219
-    \219\219|_.'|   .' | .' |/                   \  \ |  `.  | `._-\219\219
-    \219\219'   | .'   |/|  /                     \ |`!   |`.|    `\219\219
-    \219\219    !'|   .' | /                       \|  `  |  `.    \219\219
-    \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
-    " 
 
 let distanceBetweenPoints (x1:int, y1:int, x2:int, y2:int) =
     sqrt (float(((pown (x1 - x2) 2) + pown (y1 - y2) 2)))
+
+let returnToMenu (st:state) (screen:wronly_raster) =
+    st.player.clear
+    st.maze.clear
+    st.status <- Status.Menu
+    st.indicatore.drawSprite(pixel.create('>', Color.White))
+
+let drawButtons (buttonList: Button list) (menuYstart:float) (menuYIncrease:float) (screen:wronly_raster)=
+    for i=0 to buttonList.Length - 1 do
+        buttonList.[i].Y <- menuYstart + menuYIncrease * float(i)
+        screen.draw_text(buttonList.[i].etichetta, 70, int(buttonList.[i].Y), Color.White)
+
+let executeIfButtonPressed (buttonList: Button list) (menuYstart:float) (menuYIncrease:float) (menu_sound: SoundPlayer) (keyo:ConsoleKeyInfo option) (st:state) (matchPressed: ButtonAction -> unit)=
+    let enter = char (13)
+    let dx, dy =
+        match keyo with
+        None -> 0. ,0.
+        |Some key -> menu_sound.Play()
+                     match key.KeyChar with 
+                          'w' -> 0., -4.
+                        | 's' -> 0., 4.
+                        | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = st.indicatore.y) buttonList
+                                                        in match clickedButton with
+                                                             None -> ignore()
+                                                            |Some button -> matchPressed button.actionCode
+                                                        0., 0.
+                        | _   -> 0., 0.
+    st.indicatore.move_by(dx, dy)
+
+    st.indicatore.x <- 67.0
+
+    if (st.indicatore.y < 11.) then st.indicatore.y <- menuYstart + menuYIncrease * float(buttonList.Length - 1)
+        else if st.indicatore.y > menuYstart + menuYIncrease * float(buttonList.Length - 1)
+                then st.indicatore.y <- 11.
 
 let init ()  =
             let W = 150
@@ -93,45 +102,18 @@ let init ()  =
 
             Console.ForegroundColor <- ConsoleColor.Green
 
-            printfn "
+            printfn "%s" Config.startingScreenLogo
 
-
-
-                                                            ████  ████████████████████████
-                                                            ██                          ██
-                                                            ██  ██████████  ██████████  ██
-                                                            ██  ██  ██  ██  ██      ██  ██
-                                                            ██  ██  ██  ██  ██████████  ██
-                                                            ██  ██  ██  ██  ██      ██  ██
-                                                            ██  ██  ██  ██  ██      ██  ██
-                                                            ██                          ██
-                                                            ██  ██████████  ██████████  ██
-                                                            ██          ██  ██          ██
-                                                            ██  ██████████  ██████████  ██
-                                                            ██  ██          ██          ██
-                                                            ██  ██████████  ██████████  ██
-                                                            ██                          ██
-                                                            ██████████████████  ██████████
-
-
-                                                    By:       Checchin       Fasolato      Roveroni
-
-
-
-
-
-
-                                                                Press any key to start...
-            "
             ignore(Console.ReadKey())
             
             intro_game.Stop()
 
             Console.Clear()
-            let enter = char (13)
 
-            let mutable mazeString = ""
-            let mutable MyMaze: Maze option = None
+            Config.instructionMenu <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.instructionMenu
+            Config.menuScreen <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.menuScreen
+
+            let mutable myMaze: Maze option = None
             let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), startPosition.X*2, startPosition.Y, 2)
             player.clear
 
@@ -139,64 +121,31 @@ let init ()  =
             let mutable spriteSolution: sprite list = []
 
             let myLoop (keyo : ConsoleKeyInfo option) (screen : wronly_raster) (st : state) =
-                    if (st.status = Status.Menu) then 
-                                let mutable wantToQuit = false
+                    if (st.status = Status.Menu) then                                
+                                screen.draw_text(Config.menuScreen, 39, 4, Color.Green)
+
+                                drawButtons arr_options menuYstart menuYIncrease screen
                                 
-                                screen.draw_text(printMenu, 39, 4, Color.Green)
-
-                                for i=0 to arr_options.Length - 1 do
-                                    arr_options.[i].Y <- menuYstart + menuYIncrease * float(i)
-                                    screen.draw_text(arr_options.[i].etichetta, 70, int(arr_options.[i].Y), Color.White)
-                                
-                                let dx, dy =
-                                    match keyo with
-                                    None -> 0. ,0.
-                                    |Some key -> menu_sound.Play()
-                                                 match key.KeyChar with 
-                                                      'w' -> 0., -4.
-                                                    | 's' -> 0., 4.
-                                                    | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = st.indicatore.y) arr_options
-                                                                                    in match clickedButton with
-                                                                                         None -> ignore()
-                                                                                        |Some button -> match button.codice with
-                                                                                                        ButtonAction.StartGame -> st.status <- Status.SelectMode
-
-                                                                                                        |ButtonAction.Quit -> Environment.Exit(0)
-                                                                                                                              wantToQuit <- true
-                                                                                                                              st.maze.clear
-                                                                                                                              st.mode <- Mode.Arcade
-
-
-                                                                                                        |ButtonAction.MenuTasti -> st.status <- Status.MenuTasti
-                                                                                                                                   st.maze.clear
-                                                                                                        |_ -> ignore()
-                                                                                    0., 0.
-                                                    | _   -> 0., 0.
-                                st.indicatore.move_by(dx, dy)
-
-                                st.indicatore.x <- 67.0
-
-                                if (st.indicatore.y < 11.) then st.indicatore.y <- menuYstart + menuYIncrease * float(arr_options.Length - 1)
-                                    else if st.indicatore.y > menuYstart + menuYIncrease * float(arr_options.Length - 1)
-                                            then st.indicatore.y <- 11.
-                                st, wantToQuit
+                                executeIfButtonPressed arr_options menuYstart menuYIncrease menu_sound keyo st (fun (buttonAction:ButtonAction) ->
+                                    match buttonAction with
+                                        ButtonAction.StartGame -> st.status <- Status.SelectMode
+                                        |ButtonAction.Quit -> Environment.Exit(0)
+                                        |ButtonAction.MenuTasti -> st.status <- Status.MenuTasti
+                                        |_ -> ignore())
+                                st, false
 
                     elif st.status = Status.InGame then
-                         
-                         //st.maze.drawMaze((mazeString, Color.DarkGray))
                          if(st.mode = Mode.Blind) then 
                              st.maze.clear
-                             List.iter (fun (cell:MazeCell) -> if ((cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7.)) then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze 
+                             List.iter (fun (cell:MazeCell) -> if ((cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7.)) then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) myMaze.Value.maze 
                              if (distanceBetweenPoints (endPosition.X * 2, endPosition.Y, int(st.player.x), int(st.player.y))<=7.) then screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
                              if (distanceBetweenPoints (startPosition.X * 2, startPosition.Y, int(st.player.x), int(st.player.y))<=7.) then screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.Green)
                          else
-                             List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                             List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) myMaze.Value.maze
                              //partenza
                              screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
                              //arrivo
                              screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
-                         
-                         //movimento giocatore da fare
                          
                          let dx, dy =
                              match keyo with
@@ -210,142 +159,69 @@ let init ()  =
                                              | 'e' -> st.status <- Status.ShowSolution
                                                       st.player.clear
                                                       0.,0.
-                                             | 'q' -> st.status <- Status.Menu
-                                                      st.player.clear
-                                                      st.maze.clear
-
-                                                      st.indicatore.drawSprite(pixel.create('>', Color.White)) 
+                                             | 'q' -> returnToMenu st screen
                                                       0., 0.
                                              | _   -> 0., 0.
                          let nextPosition: Vector = new Vector(int(st.player.x + dx) / 2, int(st.player.y + dy))
-                         let nextCell: MazeCell = MyMaze.Value.getCell(nextPosition)
+                         let nextCell: MazeCell = myMaze.Value.getCell(nextPosition)
                          if not(nextCell.isWall) then st.player.move_by(dx, dy)
                          if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then //winning.Play()
                                                                                                              st.status <- Status.Victory
                          st, false
-                    elif st.status = Status.Victory then 
-                                                         
-                                                         st.player.clear
-                                                         st.maze.clear
-                                                         
-                                                         screen.draw_text ("HAI VINTO!!",26,15,Color.Green)
+                    
+                    elif st.status = Status.Victory then screen.draw_text ("HAI VINTO!!",26,15,Color.Green)
                                                          screen.draw_text ("Premi un tasto per tornare al menu'",15,20,Color.Green)
                                                          
 
                                                          if(keyo.IsSome) then winning.Stop()
-                                                                              st.status <- Status.Menu
-                                                                              st.indicatore.drawSprite(pixel.create('>', Color.White))
+                                                                              returnToMenu st screen
                                                          st,false
-                    elif st.status = Status.ShowSolution then 
-                       
-                         //st.maze.drawMaze(mazeString,Color.DarkGray)
-                        if st.mode = Mode.Blind then List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
+                    
+                    elif st.status = Status.ShowSolution then
+                        if st.mode = Mode.Blind then List.iter (fun (cell:MazeCell) ->
+                            if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) myMaze.Value.maze
 
-
-                        //List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) MyMaze.Value.maze
-
-
-                        if mazeSolution.Length = 0 then
-                                                        let startCell = MyMaze.Value.getCell(startPosition)
+                        if mazeSolution.Length = 0 then let startCell = myMaze.Value.getCell(startPosition)
                                                         startCell.weight <- 0
-
-                                                        mazeSolution <- MyMaze.Value.weightedSolution([startCell])
-                                                        spriteSolution <- []
-                        
+                                                        mazeSolution <- myMaze.Value.weightedSolution([startCell])
+                                                        spriteSolution <- []                        
                                                         List.iter (fun (cell:MazeCell) -> (spriteSolution <- (engine.create_and_register_sprite (image.rectangle(2, 1, pixel.create('\219', Color.DarkCyan)), cell.position.X * 2, cell.position.Y, 1)) :: spriteSolution)) mazeSolution
-                        if(keyo.IsSome) then st.status <- Status.Menu
-                                             st.indicatore.drawSprite(pixel.create('>', Color.White))
-                                             st.maze.clear
-
+                        
+                        if(keyo.IsSome) then returnToMenu st screen
                                              List.iter (fun (mySprite:sprite) -> engine.removeSprite(mySprite)) spriteSolution
                                              mazeSolution <- []
                         st, false
                     elif st.status = Status.MenuTasti then 
                         st.indicatore.clear
-                        screen.draw_text("
-                        \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
-                        \219\219                                                       \219\219
-                        \219\219                      Menu' Tasti                      \219\219
-                        \219\219                                                       \219\219
-                        \219\219              -------                                  \219\219
-                        \219\219             |   W   |        Tasti per                \219\219 
-                        \219\219             | A S D |        i movimenti              \219\219
-                        \219\219              -------                                  \219\219
-                        \219\219              -------                                  \219\219
-                        \219\219             | Enter |        Invio                    \219\219
-                        \219\219              -------                                  \219\219
-                        \219\219              -------                                  \219\219
-                        \219\219             |   Q   |        Esci                     \219\219
-                        \219\219              -------                                  \219\219
-                        \219\219              -------                                  \219\219
-                        \219\219             |   E   |        Vis. soluzione           \219\219
-                        \219\219              -------                                  \219\219
-                        \219\219                                                       \219\219
-                        \219\219                                                       \219\219
-                        \219\219               Premi un tasto per uscire...            \219\219
-                        \219\219                                                       \219\219
-                        \219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219\219
-                        ", 19, 4, Color.Green)
+                        screen.draw_text(Config.instructionMenu, 19, 4, Color.Green)
 
                         if(keyo.IsSome) then winning.Stop()
-                                             st.status <- Status.Menu
-                                             st.indicatore.drawSprite(pixel.create('>', Color.White))
-
+                                             returnToMenu st screen
                         st, false
 
                     elif st.status = Status.SelectMode then 
                         
-                        screen.draw_text(printMenu, 39, 4, Color.Green)
+                        screen.draw_text(Config.menuScreen, 39, 4, Color.Green)
 
-                        for i=0 to modeButtons.Length - 1 do
-                            modeButtons.[i].Y <- menuYstart + menuYIncrease * float(i)
-                            screen.draw_text(modeButtons.[i].etichetta, 70, int(modeButtons.[i].Y), Color.White)
+                        drawButtons modeButtons menuYstart menuYIncrease screen
+
+                        executeIfButtonPressed modeButtons menuYstart menuYIncrease menu_sound keyo st (fun (buttonAction:ButtonAction) ->
+                            match buttonAction with
+                                ButtonAction.Arcade -> st.mode <- Mode.Arcade
+                                                       st.status <- Status.InGame                                              
+                                |ButtonAction.Blind -> st.mode <- Mode.Blind
+                                                       st.status <- Status.InGame                                                                                                
+                                |_ -> ignore()
+
+                            myMaze <- Some(new Maze(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax))
+                            st.player.drawSprite (pixel.create ('\219',Color.Cyan))
+                            //resetto la posizione a quella di partenza
+                            st.player.x <- (float(startPosition.X*2))
+                            st.player.y <- float(startPosition.Y)
+                            st.indicatore.clear
+                            game_sound.PlayLooping())
+                                
                         
-                        let dx, dy =
-                            match keyo with
-                            None -> 0. ,0.
-                            |Some key -> menu_sound.Play()
-                                         match key.KeyChar with 
-                                              'w' -> 0., -4.
-                                            | 's' -> 0., 4.
-                                            | _ when key.KeyChar = enter -> let clickedButton: Button option = List.tryFind (fun (button:Button)-> button.Y = st.indicatore.y) modeButtons
-                                                                            in match clickedButton with
-                                                                                 None -> ignore()
-                                                                                |Some button -> match button.codice with
-                                                                                                    ButtonAction.Arcade -> st.mode <- Mode.Arcade
-                                                                                                                           st.status <- Status.InGame
-
-                                                                                                                          
-                                                                                                    |ButtonAction.Blind -> st.mode <- Mode.Blind
-                                                                                                                           st.status <- Status.InGame
-
-                                                                                                
-                                                                                                    |_ -> ignore()
-
-                                                                                                let (MazeStr, myMaze) = initMaze(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax)
-                                                                                                mazeString <- MazeStr
-                                                                                                MyMaze <- Some(myMaze)
-                                                                                                st.player.drawSprite (pixel.create ('\219',Color.Cyan))
-                                                                                                //resetto la posizione a quella di partenza
-                                                                                                st.player.x <- (float(startPosition.X*2))
-                                                                                                st.player.y <- float(startPosition.Y)
-                                                                                                st.indicatore.clear
-                                                                                                game_sound.PlayLooping()
-
-                                                                                                
-                                                                                                
-                                                                                                
-                                                                            0., 0.
-
-                                            | _   -> 0., 0.
-                        st.indicatore.move_by(dx, dy)
-
-                        st.indicatore.x <- 67.0
-
-                        if (st.indicatore.y < 11.) then st.indicatore.y <- menuYstart + menuYIncrease * float(arr_options.Length - 1)
-                            else if st.indicatore.y > menuYstart + menuYIncrease * float(arr_options.Length - 1)
-                                    then st.indicatore.y <- 11.
-
                         st, false
                     else st, false
 
