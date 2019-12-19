@@ -115,7 +115,7 @@ let init ()  =
             Config.victory <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.victory
 
             let mutable myMaze: Maze option = None
-            let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), startPosition.X*2, startPosition.Y, 2)
+            let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), endPosition.X*2-1, endPosition.Y, 2)
             player.clear
 
             let mutable mazeSolution: MazeCell list = []
@@ -170,12 +170,14 @@ let init ()  =
                                                                                                              st.status <- Status.Victory
                          st, false
                     
-                    elif st.status = Status.Victory then screen.draw_text(Config.victory, 0, 0, Color.Green)
-                                                         
+                    elif st.status = Status.Victory then 
 
-                                                         if(keyo.IsSome) then winning.Stop()
-                                                                              returnToMenu st screen
-                                                         st,false
+                         screen.draw_text(Config.victory, 0, 0, Color.of_rgb(byte(myRandom.Next 255),byte(myRandom.Next 255),byte(myRandom.Next 255)))
+
+
+                         if(keyo.IsSome) then winning.Stop()
+                                              returnToMenu st screen
+                         st,false
                     
                     elif st.status = Status.ShowSolution then
                         if st.mode = Mode.Blind then List.iter (fun (cell:MazeCell) ->
@@ -217,8 +219,8 @@ let init ()  =
                             myMaze <- Some(new Maze(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax))
                             st.player.drawSprite (pixel.create ('\219',Color.Cyan))
                             //resetto la posizione a quella di partenza
-                            st.player.x <- (float(startPosition.X*2))
-                            st.player.y <- float(startPosition.Y)
+                            st.player.x <- (float(endPosition.X*2-2))
+                            st.player.y <- float(endPosition.Y)
                             st.indicatore.clear
                             game_sound.PlayLooping())
                                 
