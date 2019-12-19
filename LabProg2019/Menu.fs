@@ -112,6 +112,7 @@ let init ()  =
 
             Config.instructionMenu <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.instructionMenu
             Config.menuScreen <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.menuScreen
+            Config.victory <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.victory
 
             let mutable myMaze: Maze option = None
             let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), startPosition.X*2, startPosition.Y, 2)
@@ -169,8 +170,7 @@ let init ()  =
                                                                                                              st.status <- Status.Victory
                          st, false
                     
-                    elif st.status = Status.Victory then screen.draw_text ("HAI VINTO!!",26,15,Color.Green)
-                                                         screen.draw_text ("Premi un tasto per tornare al menu'",15,20,Color.Green)
+                    elif st.status = Status.Victory then screen.draw_text(Config.victory, 0, 0, Color.Green)
                                                          
 
                                                          if(keyo.IsSome) then winning.Stop()
@@ -193,6 +193,7 @@ let init ()  =
                         st, false
                     elif st.status = Status.MenuTasti then 
                         st.indicatore.clear
+                        
                         screen.draw_text(Config.instructionMenu, 19, 4, Color.Green)
 
                         if(keyo.IsSome) then winning.Stop()
