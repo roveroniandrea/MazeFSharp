@@ -6,8 +6,9 @@ open Gfx
 open System.Media
 open LabProg2019.MazeGenerator
 open System.Diagnostics
+open System.Threading
 
-type Status = Menu|InGame|Victory|ShowSolution|MenuTasti|SelectMode
+type Status = Menu|InGame|Victory|ShowSolution|MenuTasti|SelectMode|Lose
 type ButtonAction = StartGame|Quit|MenuTasti|Arcade|Blind|Timed
 type Mode = Arcade|Blind|Timed
 
@@ -121,7 +122,7 @@ let init ()  =
 
             let mutable mazeSolution: MazeCell list = []
             let mutable spriteSolution: sprite list = []
-            let maxTime = 120
+            let maxTime = 65
 
             let stopWatch = new Stopwatch();
 
@@ -155,17 +156,19 @@ let init ()  =
 
                              if (st.mode = Mode.Timed) then 
                                 Log.msg "%A" stopWatch.Elapsed.Seconds
-                                let remainingTime = maxTime - stopWatch.Elapsed.Seconds
+                                let remainingTime = maxTime - (stopWatch.Elapsed.Seconds + stopWatch.Elapsed.Minutes * 60)
                                 let mutable colore = Color.DarkGreen 
 
                                 if remainingTime <= 0 then
                                     st.status <- Status.ShowSolution
+                                    stopWatch.Restart()
                                     st.player.clear
+
                                 else 
                                     if (remainingTime > 60) then colore <- Color.DarkGreen
                                     else if (remainingTime <=60 && remainingTime>=30) then colore <- Color.DarkYellow
                                     else colore <- Color.DarkRed
-                                    screen.draw_text("Ti restano "+ string(remainingTime/60)+":"+ string(remainingTime%60)+" minuti", 0, H - 1, colore)
+                                    screen.draw_text("Ti restano "+ string(remainingTime/60)+":"+ string(remainingTime%60)+" minuti", 0, H - 1, Color.Black, colore)
 
                          let dx, dy =
                              match keyo with
@@ -177,6 +180,7 @@ let init ()  =
                                              | 's' -> 0., 1.
                                              | 'd' -> 2.,0.
                                              | 'e' -> st.status <- Status.ShowSolution
+                                                      stopWatch.Restart()
                                                       st.player.clear
                                                       0.,0.
                                              | 'q' -> returnToMenu st screen
@@ -193,13 +197,21 @@ let init ()  =
 
                          screen.draw_text(Config.victory, 0, 0, Color.of_rgb(byte(myRandom.Next 255),byte(myRandom.Next 255),byte(myRandom.Next 255)))
 
-
                          if(keyo.IsSome) then winning.Stop()
                                               returnToMenu st screen
                          st,false
                     
+                    elif(st.status = Status.Lose) then 
+
+                         screen.draw_text(Config.lose, 0, 0, Color.of_rgb(byte(myRandom.Next 255),byte(myRandom.Next 255),byte(myRandom.Next 255)))
+
+                         if(keyo.IsSome) then winning.Stop()
+                                              returnToMenu st screen
+                         st,false
 
                     elif st.status = Status.ShowSolution then
+                        let remainingTime = 3 - stopWatch.Elapsed.Seconds
+
                         if st.mode = Mode.Blind then List.iter (fun (cell:MazeCell) ->
                             if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) myMaze.Value.maze
 
@@ -209,9 +221,11 @@ let init ()  =
                                                         spriteSolution <- []                        
                                                         List.iter (fun (cell:MazeCell) -> (spriteSolution <- (engine.create_and_register_sprite (image.rectangle(2, 1, pixel.create('\219', Color.DarkCyan)), cell.position.X * 2, cell.position.Y, 1)) :: spriteSolution)) mazeSolution
                         
-                        if(keyo.IsSome) then returnToMenu st screen
-                                             List.iter (fun (mySprite:sprite) -> engine.removeSprite(mySprite)) spriteSolution
-                                             mazeSolution <- []
+                        if(remainingTime <= 0) then //returnToMenu st screen
+                                                    st.status <- Status.Lose
+                                                    st.maze.clear
+                                                    List.iter (fun (mySprite:sprite) -> engine.removeSprite(mySprite)) spriteSolution
+                                                    mazeSolution <- []
                         st, false
                     elif st.status = Status.MenuTasti then 
                         st.indicatore.clear
@@ -238,15 +252,15 @@ let init ()  =
                                 |ButtonAction.Timed -> st.mode <- Mode.Timed
                                                        st.status <- Status.InGame
                                                        stopWatch.Restart()
-                                                       stopWatch.Start()
+                                                       //stopWatch.Start()
 
                                 |_ -> ignore()
 
                             myMaze <- Some(new Maze(W / 2, H-2, startPosition, endPosition, sameDirectionMin, sameDirectionMax))
                             st.player.drawSprite (pixel.create ('\219',Color.Cyan))
                             //resetto la posizione a quella di partenza
-                            st.player.x <- (float(startPosition.X*2))
-                            st.player.y <- float(startPosition.Y)
+                            st.player.x <- (float(endPosition.X*2-2))
+                            st.player.y <- float(endPosition.Y)
                             st.indicatore.clear
                             game_sound.PlayLooping())
                                 

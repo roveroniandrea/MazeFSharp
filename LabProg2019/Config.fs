@@ -138,3 +138,6 @@ let mutable victory = "
     
 
 "
+
+
+let mutable lose = "HAI PERSO"
