@@ -5,10 +5,11 @@ open Engine
 open Gfx
 open System.Media
 open LabProg2019.MazeGenerator
+open System.Diagnostics
 
 type Status = Menu|InGame|Victory|ShowSolution|MenuTasti|SelectMode
-type ButtonAction = StartGame|Quit|MenuTasti|Arcade|Blind
-type Mode = Arcade|Blind
+type ButtonAction = StartGame|Quit|MenuTasti|Arcade|Blind|Timed
+type Mode = Arcade|Blind|Timed
 
 [< NoEquality; NoComparison >]
 type state = {
@@ -66,7 +67,7 @@ let init ()  =
             let W = 150
             let H = 35
             let startPosition: Vector = new Vector (0,1)
-            let endPosition: Vector = new Vector ((W/2)-1,H-2)
+            let endPosition: Vector = new Vector ((W/2)-1,H-4)
             let sameDirectionMin = 2
             let sameDirectionMax = 2
 
@@ -80,7 +81,8 @@ let init ()  =
                                           ]
 
             let modeButtons:Button list = [ new Button ("Easy!", ButtonAction.Arcade);
-                                            new Button ("Blind", ButtonAction.Blind)
+                                            new Button ("Blind", ButtonAction.Blind);
+                                            new Button ("Timed", ButtonAction.Timed)
                                           ]
             
             let engine = new engine (W, H)
@@ -101,7 +103,6 @@ let init ()  =
 
 
             Console.ForegroundColor <- ConsoleColor.Green
-
             printfn "%s" Config.startingScreenLogo
 
             ignore(Console.ReadKey())
@@ -120,6 +121,9 @@ let init ()  =
 
             let mutable mazeSolution: MazeCell list = []
             let mutable spriteSolution: sprite list = []
+            let maxTime = 120
+
+            let stopWatch = new Stopwatch();
 
             let myLoop (keyo : ConsoleKeyInfo option) (screen : wronly_raster) (st : state) =
                     if (st.status = Status.Menu) then                                
@@ -141,13 +145,28 @@ let init ()  =
                              List.iter (fun (cell:MazeCell) -> if ((cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7.)) then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) myMaze.Value.maze 
                              if (distanceBetweenPoints (endPosition.X * 2, endPosition.Y, int(st.player.x), int(st.player.y))<=7.) then screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
                              if (distanceBetweenPoints (startPosition.X * 2, startPosition.Y, int(st.player.x), int(st.player.y))<=7.) then screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.Green)
-                         else
+
+                         else    
                              List.iter (fun (cell:MazeCell) -> if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) myMaze.Value.maze
                              //partenza
                              screen.draw_text("\219\219", startPosition.X*2, startPosition.Y, Color.DarkGreen)
                              //arrivo
                              screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
-                         
+
+                             if (st.mode = Mode.Timed) then 
+                                Log.msg "%A" stopWatch.Elapsed.Seconds
+                                let remainingTime = maxTime - stopWatch.Elapsed.Seconds
+                                let mutable colore = Color.DarkGreen 
+
+                                if remainingTime <= 0 then
+                                    st.status <- Status.ShowSolution
+                                    st.player.clear
+                                else 
+                                    if (remainingTime > 60) then colore <- Color.DarkGreen
+                                    else if (remainingTime <=60 && remainingTime>=30) then colore <- Color.DarkYellow
+                                    else colore <- Color.DarkRed
+                                    screen.draw_text("Ti restano "+ string(remainingTime/60)+":"+ string(remainingTime%60)+" minuti", 0, H - 1, colore)
+
                          let dx, dy =
                              match keyo with
                              None -> 0., 0.
@@ -166,7 +185,7 @@ let init ()  =
                          let nextPosition: Vector = new Vector(int(st.player.x + dx) / 2, int(st.player.y + dy))
                          let nextCell: MazeCell = myMaze.Value.getCell(nextPosition)
                          if not(nextCell.isWall) then st.player.move_by(dx, dy)
-                         if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then //winning.Play()
+                         if(nextCell.position.X = endPosition.X && nextCell.position.Y = endPosition.Y) then winning.Play()
                                                                                                              st.status <- Status.Victory
                          st, false
                     
@@ -179,6 +198,7 @@ let init ()  =
                                               returnToMenu st screen
                          st,false
                     
+
                     elif st.status = Status.ShowSolution then
                         if st.mode = Mode.Blind then List.iter (fun (cell:MazeCell) ->
                             if cell.isWall then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) myMaze.Value.maze
@@ -213,20 +233,27 @@ let init ()  =
                                 ButtonAction.Arcade -> st.mode <- Mode.Arcade
                                                        st.status <- Status.InGame                                              
                                 |ButtonAction.Blind -> st.mode <- Mode.Blind
-                                                       st.status <- Status.InGame                                                                                                
+                                                       st.status <- Status.InGame
+                                                       
+                                |ButtonAction.Timed -> st.mode <- Mode.Timed
+                                                       st.status <- Status.InGame
+                                                       stopWatch.Restart()
+                                                       stopWatch.Start()
+
                                 |_ -> ignore()
 
-                            myMaze <- Some(new Maze(W / 2, H, startPosition, endPosition, sameDirectionMin, sameDirectionMax))
+                            myMaze <- Some(new Maze(W / 2, H-2, startPosition, endPosition, sameDirectionMin, sameDirectionMax))
                             st.player.drawSprite (pixel.create ('\219',Color.Cyan))
                             //resetto la posizione a quella di partenza
-                            st.player.x <- (float(endPosition.X*2-2))
-                            st.player.y <- float(endPosition.Y)
+                            st.player.x <- (float(startPosition.X*2))
+                            st.player.y <- float(startPosition.Y)
                             st.indicatore.clear
                             game_sound.PlayLooping())
                                 
                         
                         st, false
                     else st, false
+
 
             let freccia = engine.create_and_register_sprite (image.rectangle (1,1,pixel.create('>', Color.White)), 25, 11, 1)
             let Maze = engine.create_and_register_sprite (image.rectangle (W,H, pixel.create(' ',Color.DarkBlue)),0,0,1)
