@@ -115,6 +115,7 @@ let init ()  =
             Config.instructionMenu <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.instructionMenu
             Config.menuScreen <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.menuScreen
             Config.victory <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.victory
+            Config.lose <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.lose
 
             let mutable myMaze: Maze option = None
             let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), endPosition.X*2-1, endPosition.Y, 2)
