@@ -154,8 +154,7 @@ let init ()  =
                              //arrivo
                              screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
 
-                             if (st.mode = Mode.Timed) then 
-                                Log.msg "%A" stopWatch.Elapsed.Seconds
+                             if (st.mode = Mode.Timed) then
                                 let remainingTime = maxTime - (stopWatch.Elapsed.Seconds + stopWatch.Elapsed.Minutes * 60)
                                 let mutable colore = Color.DarkGreen 
 
