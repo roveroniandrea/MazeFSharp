@@ -122,7 +122,7 @@ let init ()  =
 
             let mutable mazeSolution: MazeCell list = []
             let mutable spriteSolution: sprite list = []
-            let maxTime = 65
+            let maxTime = 100
 
             let stopWatch = new Stopwatch();
 
@@ -194,7 +194,8 @@ let init ()  =
                          st, false
                     
                     elif st.status = Status.Victory then 
-
+                         st.maze.clear
+                         st.player.clear
                          screen.draw_text(Config.victory, 0, 0, Color.of_rgb(byte(myRandom.Next 255),byte(myRandom.Next 255),byte(myRandom.Next 255)))
 
                          if(keyo.IsSome) then winning.Stop()
@@ -221,8 +222,7 @@ let init ()  =
                                                         spriteSolution <- []                        
                                                         List.iter (fun (cell:MazeCell) -> (spriteSolution <- (engine.create_and_register_sprite (image.rectangle(2, 1, pixel.create('\219', Color.DarkCyan)), cell.position.X * 2, cell.position.Y, 1)) :: spriteSolution)) mazeSolution
                         
-                        if(remainingTime <= 0) then //returnToMenu st screen
-                                                    st.status <- Status.Lose
+                        if(remainingTime <= 0) then st.status <- Status.Lose
                                                     st.maze.clear
                                                     List.iter (fun (mySprite:sprite) -> engine.removeSprite(mySprite)) spriteSolution
                                                     mazeSolution <- []
