@@ -204,7 +204,7 @@ let init ()  =
                     
                     elif(st.status = Status.Lose) then 
 
-                         screen.draw_text(Config.lose, 0, 0, Color.of_rgb(byte(myRandom.Next 255),byte(myRandom.Next 255),byte(myRandom.Next 255)))
+                         screen.draw_text(Config.lose, 5, 0, Color.DarkRed)
 
                          if(keyo.IsSome) then winning.Stop()
                                               returnToMenu st screen

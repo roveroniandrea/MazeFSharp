@@ -140,41 +140,38 @@ let mutable victory = "
 "
 
 
-let mutable lose = "                                 .oc..lx;                                                           
-                                 .c.     ,l'                                                          
-                                 .'.     ':.                                         
-                                  ;:.    ,l.                                                        
-                                  ;dc:::;ld'                                                        
-                                  ,:.    .c,                                       
-                                  ;:      'l.                                                       
-                                  :xl::::,co.                                                       
-                                  :x:'''',ok'                                                       
-                                  :c      ,d,                                                       
-                                  :o.     .o;       .,:ccc:'    .;cc:'    .;:cc:;.   .;,;c;.        
-                             .',;;coc.    .l:     .;do;'.':do.  lx,.,,  .cdc'..'cdc. ;0Oc'.         
-                       .','';c;..   ,l:'..'ol.   ;xOc      .dx. :dc'    c0d;,,,,;o0c ;0l            
-                    .;,'...:o'       ;Odclx0d.   cKO,       ck'  .:lo:. o0l;;;;;;;;. ;O:            
-                  .lkc     'l.       .dl. .cx'   .:dd.     ;xc      :k, ,xl.    .;:. ;k;            
-                ..lKo.     .o,       'd:.. ,x,     .:oc::cll,  .;l:coc.  .clc::cll'  'd,            
-           .;c:,..,o:      .o;       co:c. 'xc        ..'..      ....       .''..     .             
-         .;;;:.    ':.     .o:      .x0Od,..xo                                                      
-        .:'        .;.     .o:      ;00d:. .dd.                  .....                              
-        ,:. .,,     ',     .lc      ck,     lx.             .',,;;::::::'                           
-        cd,.'ok;    .;.    .lc      lx.     cx'           .,,'.        'o;                          
-       .locoodkx'    ;,  .,:dc..:;. cd.     ;x'       .'cdl.         .:dk:                          
-       .l:    .::.   ,:..,''lc      :o.   .cdk;  ...,;::;,,'       'lxdc'                           
-       .o:     .c,   ,o'   .cc.;lc. ;l..,::o0Xxcclc:'.           .co;.                              
-       .lc      ,c. ;x0c.'oxOxcllxo.:d,.;lddOXXo'.           ...:dc.                                
-        cl.      :ocoxOxcc;,o0d. .:ldl.     'dKl            .o0kc.                                  
-        ;l.       ,ododk0xclkXOoodOkl.       :Od.         .:ddc.                                    
-        'l.            .:dOX0c,;:;,.         :Ox'       'col,.                                      
-        .c,               cOc                'oo:.   .,ll;.                                         
-         :;              .dd.                  .,:'':oc.                                            
-         ,:.             .xc                    .d0Ol.                                              
-         .:.             ,x;                   .lxl,                                                
-         .:,             ,d'                  'll.                                                  
-          ::             ,o'               .,cc'                                                    
-          ;l.         ....ox:.         ..:ll:.                                                      
-          ,xo,.....,:lxd;lkxkxc'...';coxdc'                                                         
-          'ONXK0000Oxdxo:dxooxO00O00ko:.                                                            
-          ;0XXXNXKxocdc.'l, 'o0XNNNk'"
+let mutable lose = "         
+                            ............                   ...               ...                ...     .................                          
+                       ....              ....         ....     ....          ........      .........   .....                                       
+                      .....             .....         ....     ....          .........    ..........   .....                                       
+                      .'''.              ....     ........     ........     ..'''...............'''.   .'''..............                          
+                      .;;;.                     .';,,.             .;,;'..  .,;;,.   .',;,.    ';;;.   .;;;;,,;;;;;;;;,;;.                         
+                      ';;;'                     .,;;;'            .';;:,..  .;;;,.   .,;;,.    ,:;;.   .;;;;,,,,,,,,,,,,,.                         
+                      ;oll;        .;ccccccc:.  .:ollcccc::cccc::ccclll:'.  .lllc.   .,;;,.   .:lll,   ,lll:.                                      
+                      ;ooo:        .cdooooool.  .coooooooooooooooooooooc,.  'lool.   .,;;,.   .:ooo;   ;ooo:.                                      
+                     .cxxxc.        .'''cxxxd'  .oxxxc'''''.''''.',lxxxl;.  ,dxxd'    ....    .lxxx:   :xxxc.                                      
+                     .lOkOl.            ;kkOx,  .dkkk:             cOkko;.  ;xOkd'            .oOkOc  .ckkOl.                                      
+                      ,lclc:::::::::::::d000k,  'x000c             l000x:.  ;O00k,            .xK0Kl  .l00Kkc::::::::;;::.                         
+                          ;KMMMMMWMMMMMWWWWWK;  'OWWWo             oWWWOl'  :NWWK;            .OWWWd  .dWWMWWMMMMMMMMWMMMd.                        
+                          ,kKKKKKKKKKKKKKKKKO,  .xKKKc             lKKKd:.  ;OKKO,            .dKKKl   lKKKKKKKKKKKKKKKKKl                         
+                           ..................    ....               ....     ....              ....     .................                          
+                                                                                                                                                   
+                                                                                                                                                   
+                                                                                                                                                   
+                                                                                                                                                   
+                                                                                                                                                   
+                            ............          ...               ...       ................     .................                               
+                                                 ....               ....     ....                  ....                                            
+                      .....              ....    .....             ......   .....                  ....              .....                         
+                      .'.'.             .....    .'...             ......   ......                .....              .....                         
+                      .,,,.             .,,,,.   ',,,.             .,,,'.   .,,,,,''''''''''',.   .,,,,.             ',,,.                         
+                      .;;;'             .,;;,.  .';;;.             .;;;'.   .,;;;;,;;;;;;;;;;;'.  .,;;,.             ';;;.                         
+                      ,ccc,             .ccc:.  .;ccc'             ,ccc;'.  .cccc'.............   .cccc;,,,,,,,,,,,,,.....                         
+                      ;ooo:             'oool.  .cooo,             ,oooc'.  'oool.                'looooooooooooooodc.                             
+                      :ddd:.            'dddo'  .,;;;,,,,'    .',,,;;;;'.   ,dddo.                ,odddc;;;;;;;;;;;;;,,''.                         
+                     .lkkkl.            ;xkkx,       ;kkOd'   'xkkx;        ;kkkx'                ,xkOx,            .oOkkc.                        
+                     .:dddc'............:dddo'       ,dddo,...;dddo'        ;kOOk:.............   ;kOOx,            .dOOOc                         
+                       ...:OKKKKKKKKKKKKo....         ...'dKKKd....         :XNNNXKKKKKKKKKKKKx.  :XNNK;            .kNNNo                         
+                          ;KWMMMMMMMMWWWd                .kWWWx.            cNWWWWWWMMMMMMMMWWO'  cNWWX;            .OWWWo                         
+                          .,;;;;;;;;;;;;.                 ';;;.             .;;;;;;;;;;;;;;;;;'   .;;;,.             ';;;.                         
+                                                                                                                                                  "
