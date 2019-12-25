@@ -277,8 +277,8 @@ let init ()  =
                             myMaze <- Some(new Maze(W / 2, H-2, startPosition, endPosition, sameDirectionMin, sameDirectionMax))
                             st.player.drawSprite (pixel.create ('\219',Color.Cyan))
                             //resetto la posizione a quella di partenza
-                            st.player.x <- (float(endPosition.X*2-2))
-                            st.player.y <- float(endPosition.Y)
+                            st.player.x <- (float(startPosition.X*2))
+                            st.player.y <- float(startPosition.Y)
                             st.indicatore.clear
                             arcade.PlayLooping()
                             )
