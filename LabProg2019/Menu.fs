@@ -89,7 +89,8 @@ let init ()  =
             let engine = new engine (W, H)
 
             let intro_game = new SoundPlayer("..\..\Game_sounds\intro.wav")
-            
+            intro_game.Load()
+            intro_game.PlayLooping()
 
 
             let menu_sound = new SoundPlayer("..\..\Game_sounds\misc_menu.wav")
