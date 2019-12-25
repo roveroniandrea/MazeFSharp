@@ -89,8 +89,7 @@ let init ()  =
             let engine = new engine (W, H)
 
             let intro_game = new SoundPlayer("..\..\Game_sounds\intro.wav")
-            intro_game.Load()
-            intro_game.PlayLooping()
+            
 
 
             let menu_sound = new SoundPlayer("..\..\Game_sounds\misc_menu.wav")
@@ -99,20 +98,12 @@ let init ()  =
             let winning = new SoundPlayer("..\..\Game_sounds\Victory.wav")
             winning.Load()
 
-            let lose = new SoundPlayer("..\..\Game_sounds\over.wav")
-            lose.Load()
-
             let arcade = new SoundPlayer("..\..\Game_sounds\ingame.wav")
             arcade.Load()
 
-            let timed = new SoundPlayer("..\..\Game_sounds\timed.wav")
-            timed.Load()
-
-            let blind = new SoundPlayer("..\..\Game_sounds\blind.wav")
-            blind.Load()
-
-
-
+            let lose = new SoundPlayer("..\..\Game_sounds\over.wav")
+            lose.Load()
+            
             Console.ForegroundColor <- ConsoleColor.Green
             printfn "%s" Config.startingScreenLogo
 
@@ -153,6 +144,9 @@ let init ()  =
 
                     elif st.status = Status.InGame then
                          if(st.mode = Mode.Blind) then 
+                             
+                             
+
                              st.maze.clear
                              List.iter (fun (cell:MazeCell) -> if ((cell.isWall && distanceBetweenPoints (cell.position.X * 2, cell.position.Y, int(st.player.x), int(st.player.y)) <= 7.)) then st.maze.draw_line(cell.position.X * 2, cell.position.Y, cell.position.X * 2 + 1, cell.position.Y, pixel.create('\219', Color.DarkGray))) myMaze.Value.maze 
                              if (distanceBetweenPoints (endPosition.X * 2, endPosition.Y, int(st.player.x), int(st.player.y))<=7.) then screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
@@ -166,6 +160,8 @@ let init ()  =
                              screen.draw_text("\219\219", endPosition.X*2, endPosition.Y, Color.DarkRed)
 
                              if (st.mode = Mode.Timed) then
+                                
+
                                 let remainingTime = maxTime - (stopWatch.Elapsed.Seconds + stopWatch.Elapsed.Minutes * 60)
                                 let mutable colore = Color.DarkGreen 
 
@@ -215,10 +211,8 @@ let init ()  =
                          st,false
                     
                     elif(st.status = Status.Lose) then 
-
+ 
                          screen.draw_text(Config.lose, 5, 0, Color.DarkRed)
-
-                         lose.Play()
 
                          if(keyo.IsSome) then lose.Stop()
                                               returnToMenu st screen
@@ -237,6 +231,8 @@ let init ()  =
                                                         List.iter (fun (cell:MazeCell) -> (spriteSolution <- (engine.create_and_register_sprite (image.rectangle(2, 1, pixel.create('\219', Color.DarkCyan)), cell.position.X * 2, cell.position.Y, 1)) :: spriteSolution)) mazeSolution
                         
                         if(remainingTime <= 0) then st.status <- Status.Lose
+                                                    
+                                                    lose.Play()
                                                     st.maze.clear
                                                     List.iter (fun (mySprite:sprite) -> engine.removeSprite(mySprite)) spriteSolution
                                                     mazeSolution <- []
@@ -258,13 +254,18 @@ let init ()  =
 
                         executeIfButtonPressed modeButtons menuYstart menuYIncrease menu_sound keyo st (fun (buttonAction:ButtonAction) ->
                             match buttonAction with
-                                ButtonAction.Arcade -> st.mode <- Mode.Arcade
+                                ButtonAction.Arcade -> arcade.SoundLocation <- "..\..\Game_sounds\ingame.wav"
+                                                       arcade.Load()
+                                                       st.mode <- Mode.Arcade
                                                        st.status <- Status.InGame                                              
-                                |ButtonAction.Blind -> blind.PlayLooping()
+                                |ButtonAction.Blind -> 
+                                                       arcade.SoundLocation <- "..\..\Game_sounds\cieca.wav"
+                                                       arcade.Load()
                                                        st.mode <- Mode.Blind
                                                        st.status <- Status.InGame
                                                        
-                                |ButtonAction.Timed -> timed.PlayLooping()
+                                |ButtonAction.Timed -> arcade.SoundLocation <- "..\..\Game_sounds\hello.wav"
+                                                       arcade.Load()
                                                        st.mode <- Mode.Timed
                                                        st.status <- Status.InGame
                                                        stopWatch.Restart()
