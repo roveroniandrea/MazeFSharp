@@ -99,8 +99,18 @@ let init ()  =
             let winning = new SoundPlayer("..\..\Game_sounds\Victory.wav")
             winning.Load()
 
-            let game_sound = new SoundPlayer("..\..\Game_sounds\ingame.wav")
-            game_sound.Load()
+            let lose = new SoundPlayer("..\..\Game_sounds\over.wav")
+            lose.Load()
+
+            let arcade = new SoundPlayer("..\..\Game_sounds\ingame.wav")
+            arcade.Load()
+
+            let timed = new SoundPlayer("..\..\Game_sounds\timed.wav")
+            timed.Load()
+
+            let blind = new SoundPlayer("..\..\Game_sounds\blind.wav")
+            blind.Load()
+
 
 
             Console.ForegroundColor <- ConsoleColor.Green
@@ -197,6 +207,8 @@ let init ()  =
                          st.maze.clear
                          st.player.clear
                          screen.draw_text(Config.victory, 0, 0, Color.of_rgb(byte(myRandom.Next 255),byte(myRandom.Next 255),byte(myRandom.Next 255)))
+                         
+                         
 
                          if(keyo.IsSome) then winning.Stop()
                                               returnToMenu st screen
@@ -206,7 +218,9 @@ let init ()  =
 
                          screen.draw_text(Config.lose, 5, 0, Color.DarkRed)
 
-                         if(keyo.IsSome) then winning.Stop()
+                         lose.Play()
+
+                         if(keyo.IsSome) then lose.Stop()
                                               returnToMenu st screen
                          st,false
 
@@ -246,23 +260,26 @@ let init ()  =
                             match buttonAction with
                                 ButtonAction.Arcade -> st.mode <- Mode.Arcade
                                                        st.status <- Status.InGame                                              
-                                |ButtonAction.Blind -> st.mode <- Mode.Blind
+                                |ButtonAction.Blind -> blind.PlayLooping()
+                                                       st.mode <- Mode.Blind
                                                        st.status <- Status.InGame
                                                        
-                                |ButtonAction.Timed -> st.mode <- Mode.Timed
+                                |ButtonAction.Timed -> timed.PlayLooping()
+                                                       st.mode <- Mode.Timed
                                                        st.status <- Status.InGame
                                                        stopWatch.Restart()
-                                                       //stopWatch.Start()
+                                                       
 
                                 |_ -> ignore()
 
                             myMaze <- Some(new Maze(W / 2, H-2, startPosition, endPosition, sameDirectionMin, sameDirectionMax))
                             st.player.drawSprite (pixel.create ('\219',Color.Cyan))
                             //resetto la posizione a quella di partenza
-                            st.player.x <- (float(startPosition.X*2))
-                            st.player.y <- float(startPosition.Y)
+                            st.player.x <- (float(endPosition.X*2-2))
+                            st.player.y <- float(endPosition.Y)
                             st.indicatore.clear
-                            game_sound.PlayLooping())
+                            arcade.PlayLooping()
+                            )
                                 
                         
                         st, false
