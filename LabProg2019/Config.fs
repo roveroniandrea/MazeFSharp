@@ -141,7 +141,7 @@ let mutable victory = "
     
 
 "
-
+*)
 
 let mutable lose = "         
                             ............                   ...               ...                ...     .................                          
@@ -159,10 +159,7 @@ let mutable lose = "
                           ,kKKKKKKKKKKKKKKKKO,  .xKKKc             lKKKd:.  ;OKKO,            .dKKKl   lKKKKKKKKKKKKKKKKKl                         
                            ..................    ....               ....     ....              ....     .................                          
                                                                                                                                                    
-                                                                                                                                                   
-                                                                                                                                                   
-                                                                                                                                                   
-                                                                                                                                                   
+                                                                                                                 
                             ............          ...               ...       ................     .................                               
                                                  ....               ....     ....                  ....                                            
                       .....              ....    .....             ......   .....                  ....              .....                         
@@ -176,9 +173,11 @@ let mutable lose = "
                      .:dddc'............:dddo'       ,dddo,...;dddo'        ;kOOk:.............   ;kOOx,            .dOOOc                         
                        ...:OKKKKKKKKKKKKo....         ...'dKKKd....         :XNNNXKKKKKKKKKKKKx.  :XNNK;            .kNNNo                         
                           ;KWMMMMMMMMWWWd                .kWWWx.            cNWWWWWWMMMMMMMMWWO'  cNWWX;            .OWWWo                         
-                          .,;;;;;;;;;;;;.                 ';;;.             .;;;;;;;;;;;;;;;;;'   .;;;,.             ';;;.                         
+                          .,;;;;;;;;;;;;.                 ';;;.             .;;;;;;;;;;;;;;;;;'   .;;;,.             ';;;.             
+                          
+                                                           Premi un tasto per continuare
                                                                                                                                                   "
-*)
+
 
 
 
@@ -221,7 +220,7 @@ let mutable victory = "
 
     "
 
-
+(*
 let mutable lose = "         
                       
                           -/yyyyyyyyyyyy+-      -/yyyyyyyyyyyyo-     /yyyyyyy::/yyyyyyy+-  .yyyyyyyyyyyyyyyyys:       
@@ -253,4 +252,4 @@ let mutable lose = "
                             
                            
                                                   premi un tasto qualsiasi per continuare
-                                                                                                                                                  "
+  "*)

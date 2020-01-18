@@ -90,9 +90,6 @@
     <Compile Include="Globals.fs" />
     <Compile Include="Gfx.fs" />
     <Compile Include="Engine.fs" />
-    <Compile Include="Demo1.fs" />
-    <Compile Include="Demo2.fs" />
-    <Compile Include="Test.fs" />
     <Compile Include="MazeGenerator.fs" />
     <Compile Include="Menu.fs" />
     <Compile Include="Main.fs" />
