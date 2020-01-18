@@ -175,9 +175,9 @@ let mutable lose = "
                           ;KWMMMMMMMMWWWd                .kWWWx.            cNWWWWWWMMMMMMMMWWO'  cNWWX;            .OWWWo                         
                           .,;;;;;;;;;;;;.                 ';;;.             .;;;;;;;;;;;;;;;;;'   .;;;,.             ';;;.             
                           
+                                                           
                                                            Premi un tasto per continuare
                                                                                                                                                   "
-
 
 
 
@@ -201,14 +201,14 @@ let mutable victory = "
                                                          -oy/.......oooooo......./yo-                          
                                                             /so:..............:os/                             
                                                               `/oso/-....-/oso/`                               
-                ``+y:`` ``/y/`    `.+sys:``   `.ss.`  ``oy.`    ss....----ss     ``/y/`   `-yo````/yyyyyyyyy/```.syy:````+y:`    ``:yy:``                                         
-                ``ohs.```-sh+``  `.sho/yh/`` ``-hh.`  `.hh-`    oy.../ssssdo     ``+ho`````/hy````.-:/shs/:-````-yhhh-``.sh/`    ``/hh/``                                         
-                 `.+hy/-/yh+.`  `.sho..:hh:````-hh.`  `.hh-`    ss........ss     ``+hs..-../hy.`   ``.sh+.``  ``-yhshy-..sh/``   ``:hh:``                                         
-                  ``:yhyhs-``  ``oho.``.:hh-```-hh.`  `.hh-`    d+........+d     ``+hs-/ds./hy.`    `.oh+``   ``.yh/ohs--sh/``    `-hh-``                                         
-                   ``.shs.`    `.yh/.```.yh/```-hh.`` `.yh-`    d+........+d     ``oho-+ds-/dy.`    `.oh+``   ``.yh:-sho-yh/``    `.hh.`                                          
-                    `.oh+``     `:hh:...oho.```-hh.````.hh-`    ss........ss     ``ohs-+ds-/hy.`    `.oh+``   ``.yh:--yh+yh/``     `..`                                           
-                    ``oh+``     ``/hh:-ohs.` ``-hh-.``.-hh-`    oy.../ssssdo     ``+hs:+dy:+hs``  ``.-sh+.``` ``.yh:..-yhhh/``     `..``                                          
-                    ``oh+``      ``/hhyhs.`   `.ohyssssyhs.`    d+........+d     ``-yhshdhshh/````/osshhysso:```.yh-```:hhh/``    `/hh/`                                                                        
+                  +y:     /y/      .+sys:      .ss.     oy.     ss....----ss       /y/       -yo.   /yyyyyyyyy/   .syy:    ?+:      :yy:                                         
+                  ohs.   -sh+     .sho/yh/     -hh.    .hh-     oy.../ssssdo       +ho       /hy.      /shs/      -yhhh    3s/      /hh/                                         
+                  .+hy/-/yh+.    .sho   hh:    -hh.    .hh-     ss........ss       +hs       /hy.      .sh+.      -yhshy   1s/      :hh:                                         
+                    :yhyhs-      oho    :hh-   -hh.    .hh-     d+........+d       +hs  /ds  /hy.      .oh+       .yh/ohs  sh/      -hh-                                         
+                     .shs.      .yh/    .yh/   -hh.    .yh-     d+........+d       oho  +ds  /dy.      .oh+       .yh:-sho yh/      .hh.                                          
+                     .oh+        :hh    oho.   -hh.    .hh-     ss........ss       ohs  +ds  /hy.      .oh+       .yh:--yh+yh/       ..                                           
+                      oh+         /hh:-ohs.    -hh-    -hh-     oy.../ssssdo       +hs  +dy  +hs`      -sh+.      .yh:..-yhhh/                                              
+                      oh+          /hhyhs.     .ohyssssyhs.     d+........+d        -yhshdhshh/     /shhysso:?/   .yh-```:hhh/      /hh/                                                                        
                                                              oyyooooooooooooyyo                             
                                                         osoooooooooooo+oooooooooooso                                    
                                                        /y:------------------------:y/                                   
