@@ -8,11 +8,20 @@ open LabProg2019.MazeGenerator
 open System.Diagnostics
 open System.Threading
 
+// Status of the game
 type Status = Menu|InGame|Victory|ShowSolution|MenuTasti|SelectMode|Lose
+
+// Action of the buttons in the menu
 type ButtonAction = StartGame|Quit|MenuTasti|Arcade|Blind|Timed
+
+//Game Modes
 type Mode = Arcade|Blind|Timed
 
+
+
 [< NoEquality; NoComparison >]
+
+ 
 type state = {
     player: sprite
     indicatore : sprite
@@ -27,20 +36,20 @@ type Button (etichetta:string, actionCode:ButtonAction) =
     member this.actionCode:ButtonAction = actionCode
     member this.Y with get() = y and set(value) = y <- value
 
-let distanceBetweenPoints (x1:int, y1:int, x2:int, y2:int) =
-    sqrt (float(((pown (x1 - x2) 2) + pown (y1 - y2) 2)))
-
+///Return to menu, Status <- Menu
 let returnToMenu (st:state) (screen:wronly_raster) =
     st.player.clear
     st.maze.clear
     st.status <- Status.Menu
     st.indicatore.drawSprite(pixel.create('>', Color.White))
 
+//Draw the buttons on the screen
 let drawButtons (buttonList: Button list) (menuYstart:float) (menuYIncrease:float) (screen:wronly_raster)=
     for i=0 to buttonList.Length - 1 do
         buttonList.[i].Y <- menuYstart + menuYIncrease * float(i)
         screen.draw_text(buttonList.[i].etichetta, 70, int(buttonList.[i].Y), Color.White)
 
+///Execute the specific action of the button if it is pressed
 let executeIfButtonPressed (buttonList: Button list) (menuYstart:float) (menuYIncrease:float) (menu_sound: SoundPlayer) (keyo:ConsoleKeyInfo option) (st:state) (matchPressed: ButtonAction -> unit)=
     let enter = char (13)
     let dx, dy =
@@ -64,14 +73,22 @@ let executeIfButtonPressed (buttonList: Button list) (menuYstart:float) (menuYIn
         else if st.indicatore.y > menuYstart + menuYIncrease * float(buttonList.Length - 1)
                 then st.indicatore.y <- 11.
 
+///Initialize the menu
 let init ()  =
+            //Size of the Maze
             let W = 150
             let H = 35
+
+            //Generate the Start and End position
             let startPosition: Vector = new Vector (0,1)
             let endPosition: Vector = new Vector ((W/2)-1,H-4)
-            let sameDirectionMin = 2
-            let sameDirectionMax = 2
 
+            //sameDirectionMin and sameDirectionMax are used to set the minimum and the maximum length of the corridors of the maze 
+            let sameDirectionMin = 2
+            let sameDirectionMax = 3
+
+            //menuYstart set the position of the pointer in the menu, 
+            //menuYIncrease allows you to move to the other buttons of the menu
             let menuYstart = 11.
             let menuYIncrease = 4.
 
@@ -85,13 +102,13 @@ let init ()  =
                                             new Button ("Blind", ButtonAction.Blind);
                                             new Button ("Timed", ButtonAction.Timed)
                                           ]
-            
+            //Generate the Engine
             let engine = new engine (W, H)
 
+            //SoundPlayer is used to reproduce files with .wav extension 
             let intro_game = new SoundPlayer("..\..\Game_sounds\intro.wav")
             intro_game.Load()
             intro_game.PlayLooping()
-
 
             let menu_sound = new SoundPlayer("..\..\Game_sounds\misc_menu.wav")
             menu_sound.Load()
@@ -105,19 +122,19 @@ let init ()  =
             let lose = new SoundPlayer("..\..\Game_sounds\over.wav")
             lose.Load()
             
+            //Printing the logo of the maze
             Console.ForegroundColor <- ConsoleColor.Green
             printfn "%s" Config.startingScreenLogo
-
             ignore(Console.ReadKey())
-            
             intro_game.Stop()
-
             Console.Clear()
 
+            //Used for delete all the \r caracters (new line fix)
             Config.instructionMenu <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.instructionMenu
             Config.menuScreen <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.menuScreen
             Config.victory <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.victory
             Config.lose <- String.map (fun (ch:char)-> if ch = '\r' then char(0) else ch) Config.lose
+
 
             let mutable myMaze: Maze option = None
             let player = engine.create_and_register_sprite (image.rectangle (2,1, pixel.create('\219', Color.Cyan)), endPosition.X*2-1, endPosition.Y, 2)

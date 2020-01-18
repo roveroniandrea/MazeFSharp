@@ -65,24 +65,19 @@ type wronly_raster (w, h) =
     member inline this.Item 
         with set (x, y) px = this.unsafe_plot (x, y, px)
 
-    // clear
+    // set to empty all the pixels of the sprite
     abstract member clear : unit
     default this.clear =
         for y = 0 to this.height - 1 do
             for x = 0 to this.width - 1 do
                 this.[x, y] <- pixel.empty
 
-    abstract member hide : unit
-    default this.hide =
-        for y = 0 to this.height - 1 do
-            for x = 0 to this.width - 1 do
-                this.[x, y] <- pixel.filled Color.Black
-
+    // draw a specific pixel in the sprite 
     member this.drawSprite (carattere: pixel) : unit =
            for y = 0 to this.height - 1 do
                for x = 0 to this.width - 1 do
                    this.[x, y] <- carattere
-    
+    //draw the maze
     member this.drawMaze (maze: string, colore: Color) : unit =
         let mutable i=0
         for y = 0 to this.height - 1 do

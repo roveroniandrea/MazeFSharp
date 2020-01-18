@@ -2,7 +2,7 @@
 
 open System
 
-///instance of Random
+///Instance of Random
 let myRandom = new Random()
 
 [<NoComparison;NoEquality>]
@@ -20,10 +20,10 @@ type Vector (x:int, y:int) =
     member this.isInsideMaze (W:int) (H:int):bool =
         this.X >= 1 && this.X < (W-1) && this.Y >= 1 && this.Y < (H-1)
 
-    ///return a new Vector with translated coords
+    ///Return a new Vector with translated coords
     member this.getTranslated (direction:Vector) = new Vector(this.X + direction.X, this.Y + direction.Y)
 
-    ///checks for equality on X and Y coords
+    ///Checks for equality on X and Y coords
     member this.isSameAs (other:Vector) = this.X = other.X && this.Y = other.Y
 
     ///Returns a random new Vector not opposite
@@ -56,6 +56,9 @@ type MazeCell (x:int, y:int, isWall:bool) =
     //Weight indicates how far from the start of the maze. Used to find the shortest solution
     member this.weight with get() = mutableWeight and set(value) = mutableWeight <- value
 
+///Return the distance between points
+let distanceBetweenPoints (x1:int, y1:int, x2:int, y2:int) =
+    sqrt (float(((pown (x1 - x2) 2) + pown (y1 - y2) 2)))
 
 ///Class for maze
 type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
@@ -72,42 +75,20 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         let addIfInsideMaze (position:Vector) =
             if position.isInsideMaze w h || position.isSameAs(endPosition) then resultCells <- resultCells @ [privateGetCell position]
         
-        //est cell
+        //Est cell
         let direction = new Vector(-1, 0)
         addIfInsideMaze (cell.position.getTranslated(direction))
-        //noth cell
+        //Noth cell
         let direction = new Vector(0, 1)
         addIfInsideMaze (cell.position.getTranslated(direction))
-        //west cell
+        //West cell
         let direction = new Vector(1, 0)
         addIfInsideMaze (cell.position.getTranslated(direction))
-        //south cell
+        //South cell
         let direction = new Vector(0, -1)
         addIfInsideMaze (cell.position.getTranslated(direction))
 
         resultCells
-
-    (*///Ritorna la stringa rappresentante il labirinto
-    let privateGenMazeString () =
-        let mutable stringResult = ""
-        //per ogni cella
-        for cellIndex = 0 to (w * h) - 1 do
-            //trovo la sua posizione
-            let position:Vector = new Vector(cellIndex % w, cellIndex / w)
-            //trovo la cella
-            let currentCell = privateGetCell(position)
-            //se è un muro oppure è bloccata
-            if currentCell.isWall then stringResult <- stringResult + "\219\219"  //alt + 178 -> ▓  alt + 219 -> █
-            //se è la cella iniziale
-            elif (cellIndex=w) 
-                then stringResult <- stringResult + "  "
-            //se è la cella finale
-            elif (cellIndex=((w-1)+(w*29))) 
-                then stringResult <- stringResult + "  "
-            //altrimenti è una via
-            else stringResult <- stringResult + "  "
-        stringResult
-    *)
 
     ///At the end of the maze generation, all blocked cells needs to be considered wall
     let makeWallIfBlocked () =
@@ -137,7 +118,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
 
     ///Generation of the maze
     let rec generateMaze (startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
-        //init
+        //Init
         let startCell = privateGetCell startPosition
         startCell.isVisited <- true
         startCell.isWall <- false
@@ -148,7 +129,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         let mutable mantainDirectionFor = myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
         let mutable currentDirection = new Vector(1, 0)
 
-        //mazePath will be empty if all the maze has been explored
+        //MazePath will be empty if all the maze has been explored
         while mazePath.Length > 0 do
             ///Returns all adiacent cells
             let adiacentCells:MazeCell list = privateGetAdiacentCells(privateGetCell mazePath.Head.position) (endPosition)
@@ -157,72 +138,72 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
             ///Sublist of not blocked cells (these will be explored first)
             let notBlockedList = List.filter (fun (cell:MazeCell) -> not(cell.isBlocked))  notVisitedCells
                     
-            //not blocked (and not visited) cells have highest priority
+            //Not blocked (and not visited) cells have highest priority
             if notBlockedList.Length > 0 then
-                //init nextCell
+                //Init nextCell
                 let mutable nextCell = notBlockedList.[0]
 
-                //check if current direction can be mantained by the alghoritm
+                //Check if current direction can be mantained by the alghoritm
                 let canMantainDirection = List.exists (fun (cell:MazeCell) -> (cell.position.X - mazePath.Head.position.X) = currentDirection.X && (cell.position.Y - mazePath.Head.position.Y) = currentDirection.Y) notBlockedList
 
-                //if needed, change direction
+                //If needed, change direction
                 if mantainDirectionFor <= 0 || not(canMantainDirection) then
-                    //choose rendom direction
+                    //Choose rendom direction
                     nextCell <- notBlockedList.[myRandom.Next(notBlockedList.Length)]
                     currentDirection <- new Vector(nextCell.position.X - mazePath.Head.position.X, nextCell.position.Y - mazePath.Head.position.Y)
-                    //reset countdown for new change of direction
+                    //Reset countdown for new change of direction
                     mantainDirectionFor <- myRandom.Next(sameDirectionIntervalMin, sameDirectionIntervalMax)
-                //otherwise, mantain same direction
+                //Otherwise, mantain same direction
                 else nextCell <- List.find (fun (cell:MazeCell) -> (cell.position.X - mazePath.Head.position.X) = currentDirection.X && (cell.position.Y - mazePath.Head.position.Y) = currentDirection.Y) notBlockedList
                 
-                //decrease countdown for direction change
+                //Decrease countdown for direction change
                 mantainDirectionFor <- mantainDirectionFor - 1
-                //set isBlocked to all adiacent cells except the next one
+                //Set isBlocked to all adiacent cells except the next one
                 List.iter (fun (cell:MazeCell) -> if (cell <> nextCell) then cell.isBlocked <- true) notVisitedCells
-                //set nextCell visited and not wall
+                //Set nextCell visited and not wall
                 nextCell.isVisited <- true
                 nextCell.isWall <- false
-                //proceed with iteration
+                //Proceed with iteration
                 mazePath <- nextCell::mazePath
 
-            //otherwise, if cell has no not blocked cells, blocked cells have second priority
+            //Otherwise, if cell has no not blocked cells, blocked cells have second priority
             else
-                //check if a blocked cell can be unblocked
+                //Check if a blocked cell can be unblocked
                 let existsUnblockableCell = List.tryFind (fun (cell:MazeCell) -> 
-                            (*requirement for a blocked cell in order to be unblocked
+                            (*Requirement for a blocked cell in order to be unblocked
                             is that it can't have more than 1 not wall cell adiacent*)
                             let adiacentOfBlockedCell = privateGetAdiacentCells cell endPosition
                             let visitedOfAdiacent = List.filter (fun (cell:MazeCell)-> cell.isVisited) adiacentOfBlockedCell
                             visitedOfAdiacent.Length < 2 ) notVisitedCells
 
                 match existsUnblockableCell with
-                //if a cell meets the requirements, unblock it
+                //If a cell meets the requirements, unblock it
                 Some value ->
                     value.isVisited <- true
                     value.isWall <- false
                     value.isBlocked <- false
-                    //and proceed with iterations
+                    //And proceed with iterations
                     mazePath <- value::mazePath
-                //otherwise this current cell is a dead-end, so turn back
+                //Otherwise this current cell is a dead-end, so turn back
                 |None ->
                     mazePath <- mazePath.Tail
 
-        //post-generations adjustments:
-        //blocked cells are wall
+        //Post-generations adjustments:
+        //Blocked cells are wall
         ignore(makeWallIfBlocked())
-        //link exit
+        //Link exit
         let linkToDirection = match (endPosition.X, endPosition.Y) with
                               (0, _) -> new Vector(1, 0)
                               |(_, 0) -> new Vector(0, 1)
                               |(_, _) when endPosition.Y = (H - 1) -> new Vector(0, -1)
                               |(_, _) -> new Vector(-1, 0)
         ignore(linkExit (privateGetCell endPosition) linkToDirection)
-        //reset cell status
+        //Reset cell status
         ignore(resetCellsStatus())
-        //link two paths
+        //Link two paths
         ignore(linkPaths())
          
-    //on instantiation, generate the maze
+    //On instantiation, generate the maze
     do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
 
     ///Getter for maze width
@@ -237,36 +218,36 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
 
     ///Assigns to every cell a weight and follows the lower weighted path
     member this.weightedSolution (currentProcessCells:MazeCell list) =
-        //cell that will be evaluated in next recursion
+        //Cell that will be evaluated in next recursion
         let mutable nextCellToProcess = []
-        //for each cell to evaluate
+        //For each cell to evaluate
         List.iter (fun (currentCell:MazeCell) -> 
-            //get a list of all adiacent cells not wall
+            //Get a list of all adiacent cells not wall
             let adiacentNotWallCells = List.filter (fun (cell:MazeCell) -> not(cell.isWall)) (privateGetAdiacentCells currentCell endPosition)
             
             List.iter (fun (cell:MazeCell) -> 
-                //for each of them, if the cell has more weight of the current cell it needs to be revaluated
+                //For each of them, if the cell has more weight of the current cell it needs to be revaluated
                 if cell.weight > currentCell.weight + 1 || cell.weight = -1 then
-                    //so change its weight
+                    //So change its weight
                     cell.weight <- currentCell.weight + 1
-                    //and add to next cell to process
+                    //And add to next cell to process
                     nextCellToProcess <- cell::nextCellToProcess
             ) adiacentNotWallCells
         ) currentProcessCells
-        //repeat if more cells need to be processed
+        //Repeat if more cells need to be processed
         if nextCellToProcess.Length > 0 then this.weightedSolution nextCellToProcess
-        //else start backtracking alghoritm
+        //Else start backtracking alghoritm
         else let rec backTracking (cell:MazeCell) =
-                //selecting all adiacent not walls cells
+                //Selecting all adiacent not walls cells
                 let adiacentNotWallCells = List.filter (fun (cell:MazeCell) -> not(cell.isWall)) (privateGetAdiacentCells cell endPosition)
-                //get the cell with lowest weight
+                //Get the cell with lowest weight
                 let lowestCell = List.minBy (fun (adiacentCell:MazeCell) -> adiacentCell.weight) adiacentNotWallCells
-                //if adiacent cell ha lower weight add current cell to solution and repeat recursively
+                //If adiacent cell ha lower weight add current cell to solution and repeat recursively
                 if lowestCell.weight < cell.weight then
                     cell::backTracking lowestCell
-                //otherwise the path is finished 
+                //Otherwise the path is finished 
 
                 else cell::[privateGetCell startPosition]
-             //starting from the end
+             //Starting from the end
              in backTracking (privateGetCell endPosition)
 
