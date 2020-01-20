@@ -60,7 +60,7 @@ type MazeCell (x:int, y:int, isWall:bool) =
 let distanceBetweenPoints (x1:int, y1:int, x2:int, y2:int) =
     sqrt (float(((pown (x1 - x2) 2) + pown (y1 - y2) 2)))
 
-///Class for maze
+///Class for maze. Requires a starting position, an end position, min and max corridor length
 type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
     let w = W
     let h = H

@@ -27,6 +27,15 @@ let log_warn_color = Color.Yellow
 let log_error_color = Color.Red
 let log_debug_color = Color.Cyan
 
+//List with all the gamepaths
+let soundpaths = [("Intro","..\..\Game_sounds\intro.wav");
+                  ("Menu", "..\..\Game_sounds\misc_menu.wav");
+                  ("Victory","..\..\Game_sounds\Victory.wav");
+                  ("Arcade","..\..\Game_sounds\ingame.wav");
+                  ("Lose","..\..\Game_sounds\over.wav");
+                  ("Blind","..\..\Game_sounds\cieca.wav");
+                  ("Timed","..\..\Game_sounds\hello.wav")]
+
 let startingScreenLogo = "
 
 
