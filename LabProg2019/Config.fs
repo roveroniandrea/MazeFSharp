@@ -157,38 +157,38 @@ let mutable lose = "
 
 
 let mutable victory = "              
-                                                     +h////////////////////////////////h+                      
-                                                      h/............................../h                       
-                                          `+ooo++o+   .moooooo+..:oooooooooo:..+oooooom.   +o++ooo+`           
-                                          /s......os   m..............................m   so......s/           
-                                          /s./y+y:./so+m..//////..............//////..m+os/.:y+y/.s/           
-                                          /s.oo `os/-..m..::::::......//......::::::..m..-/so` oo.s/           
-                                          /s.oo    -+oom............./hh/.............moo+-    oo.s/           
-                                          /s.oo        m............/h``h/............m        oo.s/           
-                                          /s.oo        m......:ooooos`  `sooooo:..`...m        oo.s/           
-                                          :h.-ss:`     m......-os-          -so-......m     `:ss-.h:           
-                                           /y+-./ss:`  m........-os.      .so-........m  `:ss/.-+y/            
-                                             -os+-./so:m-.........h-      -h.........-m:os/.-+so-              
-                                                -os+-./ho........-m .+oo+. m-........sh/.-+so-                 
-                                                   -os+-h/.......+ds+-..-+sd+......./h-+so-                    
-                                                      -oymo........................+myo-                       
-                                                         -oy/.......oooooo......./yo-                          
-                                                            /so:..............:os/                             
-                                                              `/oso/-....-/oso/`                               
-                  +y:     /y/      .+sys:      .ss.     oy.     ss....----ss       /y/       -yo.   /yyyyyyyyy/   .syy:    ?+:      :yy:                                         
-                  ohs.   -sh+     .sho/yh/     -hh.    .hh-     oy.../ssssdo       +ho       /hy.      /shs/      -yhhh    3s/      /hh/                                         
-                  .+hy/-/yh+.    .sho   hh:    -hh.    .hh-     ss........ss       +hs       /hy.      .sh+.      -yhshy   1s/      :hh:                                         
-                    :yhyhs-      oho    :hh-   -hh.    .hh-     d+........+d       +hs  /ds  /hy.      .oh+       .yh/ohs  sh/      -hh-                                         
-                     .shs.      .yh/    .yh/   -hh.    .yh-     d+........+d       oho  +ds  /dy.      .oh+       .yh:-sho yh/      .hh.                                          
-                     .oh+        :hh    oho.   -hh.    .hh-     ss........ss       ohs  +ds  /hy.      .oh+       .yh:--yh+yh/       ..                                           
-                      oh+         /hh:-ohs.    -hh-    -hh-     oy.../ssssdo       +hs  +dy  +hs`      -sh+.      .yh:..-yhhh/                                              
-                      oh+          /hhyhs.     .ohyssssyhs.     d+........+d        -yhshdhshh/     /shhysso:?/   .yh-```:hhh/      /hh/                                                                        
-                                                             oyyooooooooooooyyo                             
-                                                        osoooooooooooo+oooooooooooso                                    
-                                                       /y:------------------------:y/                                   
-                                                      :d/::::::::::::::::::::::::::/d:                                  
-                                                      +o++++++++++++++++++++++++++++o+                                         
+                                                         +h////////////////////////////////h+                      
+                                                          h/............................../h                       
+                                              `+ooo++o+   .moooooo+..:oooooooooo:..+oooooom.   +o++ooo+`           
+                                              /s......os   m..............................m   so......s/           
+                                              /s./y+y:./so+m..//////..............//////..m+os/.:y+y/.s/           
+                                              /s.oo `os/-..m..::::::......//......::::::..m..-/so` oo.s/           
+                                              /s.oo    -+oom............./hh/.............moo+-    oo.s/           
+                                              /s.oo        m............/h``h/............m        oo.s/           
+                                              /s.oo        m......:ooooos`  `sooooo:..`...m        oo.s/           
+                                              :h.-ss:`     m......-os-          -so-......m     `:ss-.h:           
+                                               /y+-./ss:`  m........-os.      .so-........m  `:ss/.-+y/            
+                                                 -os+-./so:m-.........h-      -h.........-m:os/.-+so-              
+                                                    -os+-./ho........-m .+oo+. m-........sh/.-+so-                 
+                                                       -os+-h/.......+ds+-..-+sd+......./h-+so-                    
+                                                          -oymo........................+myo-                       
+                                                             -oy/.......oooooo......./yo-                          
+                                                                /so:..............:os/                             
+                                                                  `/oso/-....-/oso/`                               
+                      +y:     /y/      .+sys:      .ss.     oy.     ss....----ss       /y/       -yo.   /yyyyyyyyy/   .syy:    ?+:                                      
+                      ohs.   -sh+     .sho/yh/     -hh.    .hh-     oy.../ssssdo       +ho       /hy.      /shs/      -yhhh    3s/             
+                      .+hy/-/yh+.    .sho   hh:    -hh.    .hh-     ss........ss       +hs       /hy.      .sh+.      -yhshy   1s/                                       
+                        :yhyhs-      oho    :hh-   -hh.    .hh-     d+........+d       +hs  /ds  /hy.      .oh+       .yh/ohs  sh/                                        
+                         .shs.      .yh/    .yh/   -hh.    .yh-     d+........+d       oho  +ds  /dy.      .oh+       .yh:-sho yh/                                         
+                         .oh+        :hh    oho.   -hh.    .hh-     ss........ss       ohs  +ds  /hy.      .oh+       .yh:--yh+yh/                                          
+                          oh+         /hh:-ohs.    -hh-    -hh-     oy.../ssssdo       +hs  +dy  +hs`      -sh+.      .yh:..-yhhh/                                              
+                          oh+          /hhyhs.     .ohyssssyhs.     d+........+d        -yhshdhshh/     /shhysso:?/   .yh-```:hhh/                                                                      
+                                                                 oyyooooooooooooyyo                             
+                                                            osoooooooooooo+oooooooooooso                                    
+                                                           /y:------------------------:y/                                   
+                                                          :d/::::::::::::::::::::::::::/d:                                  
+                                                          +o++++++++++++++++++++++++++++o+                                         
  
-                                                  premi un tasto qualsiasi per continuare                                               
+                                                      premi un tasto qualsiasi per continuare                                               
                                                    
-    "
+"
