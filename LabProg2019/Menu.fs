@@ -49,11 +49,15 @@ type MySoundPlayer () =
     member this.SetSounds (status:bool) (loop:bool) (mode:string) = this.privateSetSounds status loop mode Config.soundpaths
 ///Return to menu, Status <- Menu
 let returnToMenu (st:state) (screen:wronly_raster)(sp:MySoundPlayer) =
+    sp.SetSounds false false "Arcade"
+    sp.SetSounds false false "Blind" 
+    sp.SetSounds false false "Timed" 
+    sp.SetSounds true false "Menu" 
     st.player.clear
     st.maze.clear
     st.status <- Status.Menu
     st.menuArrow.drawSprite(pixel.create('>', Color.White))
-    sp.SetSounds true false "Menu" 
+    
     
 
 //Draw the buttons on the screen
