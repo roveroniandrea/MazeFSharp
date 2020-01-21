@@ -264,7 +264,8 @@ let init ()  =
                     elif(st.status = Status.Lose) then
                          screen.draw_text(Config.lose, 5, 0, Color.DarkRed)
                          //Returning to main menu on any key
-                         if(keyo.IsSome) then sp.SetSounds true true "Lose" 
+                         if(keyo.IsSome) then sp.SetSounds true false "Lose"
+                                              sp.Play()
                                               returnToMenu st screen sp
                          st,false
 
@@ -288,7 +289,8 @@ let init ()  =
                         
                         //If the remaining time (Timed mode) is elapsed the player loses status <- Lose
                         if(remainingTime <= 0) then st.status <- Status.Lose
-                                                    sp.SetSounds true true "Lose" 
+                                                    sp.SetSounds true false "Lose"
+                                                    sp.Play()
                                                     st.maze.clear
                                                     //all sprites in spriteSolution are removed
                                                     List.iter (fun (mySprite:sprite) -> engine.removeSprite(mySprite)) spriteSolution

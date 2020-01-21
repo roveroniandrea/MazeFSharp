@@ -65,6 +65,8 @@
     <None Include="Game_sounds\click.wav" />
     <None Include="Game_sounds\click_2.wav" />
     <None Include="Game_sounds\cieca.wav" />
+    <None Include="Game_sounds\menu_sound.wav" />
+    <None Include="Game_sounds\game_over.wav" />
     <None Include="Game_sounds\over.wav" />
     <None Include="Game_sounds\load.wav" />
     <None Include="Game_sounds\intro.wav" />

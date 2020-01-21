@@ -32,7 +32,7 @@ let soundpaths = [("Intro","..\..\Game_sounds\intro.wav");
                   ("Menu", "..\..\Game_sounds\misc_menu.wav");
                   ("Victory","..\..\Game_sounds\Victory.wav");
                   ("Arcade","..\..\Game_sounds\ingame.wav");
-                  ("Lose","..\..\Game_sounds\over.wav");
+                  ("Lose","..\..\Game_sounds\game_over.wav");
                   ("Blind","..\..\Game_sounds\cieca.wav");
                   ("Timed","..\..\Game_sounds\hello.wav")]
 
