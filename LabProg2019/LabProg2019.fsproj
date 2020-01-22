@@ -62,28 +62,12 @@
   </PropertyGroup>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <None Include="Game_sounds\click.wav" />
-    <None Include="Game_sounds\click_2.wav" />
     <None Include="Game_sounds\cieca.wav" />
-    <None Include="Game_sounds\menu_sound.wav" />
     <None Include="Game_sounds\game_over.wav" />
-    <None Include="Game_sounds\over.wav" />
-    <None Include="Game_sounds\load.wav" />
     <None Include="Game_sounds\intro.wav" />
     <None Include="Game_sounds\ingame.wav" />
-    <None Include="Game_sounds\menu.wav" />
-    <None Include="Game_sounds\sound87.wav" />
     <None Include="Game_sounds\Victory.wav" />
     <None Include="Game_sounds\misc_menu.wav" />
-    <None Include="Game_sounds\misc_menu_2.wav" />
-    <None Include="Game_sounds\misc_menu_3.wav" />
-    <None Include="Game_sounds\misc_menu_4.wav" />
-    <None Include="Game_sounds\misc_sound.wav" />
-    <None Include="Game_sounds\negative.wav" />
-    <None Include="Game_sounds\negative_2.wav" />
-    <None Include="Game_sounds\positive.wav" />
-    <None Include="Game_sounds\save.wav" />
-    <None Include="Game_sounds\sharp_echo.wav" />
     <None Include="Game_sounds\hello.wav" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Prelude.fs" />
