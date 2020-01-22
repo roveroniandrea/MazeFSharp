@@ -27,14 +27,16 @@ let log_warn_color = Color.Yellow
 let log_error_color = Color.Red
 let log_debug_color = Color.Cyan
 
+//
+type SoundpathName = SPIntro|SPMenu|SPVictory|SPArcade|SPLose|SPBlind|SPTimed
 //List with all the gamepaths
-let soundpaths = [("Intro","..\..\Game_sounds\intro.wav");
-                  ("Menu", "..\..\Game_sounds\misc_menu.wav");
-                  ("Victory","..\..\Game_sounds\Victory.wav");
-                  ("Arcade","..\..\Game_sounds\ingame.wav");
-                  ("Lose","..\..\Game_sounds\game_over.wav");
-                  ("Blind","..\..\Game_sounds\cieca.wav");
-                  ("Timed","..\..\Game_sounds\hello.wav")]
+let soundpaths: (SoundpathName * string)list = [(SPIntro,"..\..\Game_sounds\intro.wav");
+                                                (SPMenu, "..\..\Game_sounds\misc_menu.wav");
+                                                (SPVictory,"..\..\Game_sounds\Victory.wav");
+                                                (SPArcade,"..\..\Game_sounds\ingame.wav");
+                                                (SPLose,"..\..\Game_sounds\game_over.wav");
+                                                (SPBlind,"..\..\Game_sounds\cieca.wav");
+                                                (SPTimed,"..\..\Game_sounds\hello.wav")]
 
 let startingScreenLogo = "
 

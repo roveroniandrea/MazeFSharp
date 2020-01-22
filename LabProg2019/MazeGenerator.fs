@@ -61,7 +61,7 @@ let distanceBetweenPoints (x1:int, y1:int, x2:int, y2:int) =
     sqrt (float(((pown (x1 - x2) 2) + pown (y1 - y2) 2)))
 
 ///Class for maze. Requires a starting position, an end position, min and max corridor length
-type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
+type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int, linkSomePaths:bool) =
     let w = W
     let h = H
     let mutable mutableMaze = List.init (W * H) (fun (cellIndex) -> new MazeCell(cellIndex % w, cellIndex / w, true))
@@ -117,7 +117,7 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         ) mutableMaze
 
     ///Generation of the maze
-    let rec generateMaze (startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int) =
+    let rec generateMaze (startPosition:Vector, endPosition:Vector, sameDirectionIntervalMin:int, sameDirectionIntervalMax:int, linkSomePaths:bool) =
         //Init
         let startCell = privateGetCell startPosition
         startCell.isVisited <- true
@@ -201,10 +201,10 @@ type Maze (W:int, H:int, startPosition:Vector, endPosition:Vector, sameDirection
         //Reset cell status
         ignore(resetCellsStatus())
         //Link two paths
-        ignore(linkPaths())
+        if linkSomePaths then ignore(linkPaths())
          
     //On instantiation, generate the maze
-    do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax)
+    do generateMaze(startPosition, endPosition, sameDirectionIntervalMin, sameDirectionIntervalMax, linkSomePaths)
 
     ///Getter for maze width
     member this.W with get() = w

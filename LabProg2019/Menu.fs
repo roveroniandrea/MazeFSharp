@@ -6,6 +6,7 @@ open Gfx
 open System.Media
 open LabProg2019.MazeGenerator
 open System.Diagnostics
+open Config
 
 ///Status of the game
 type Status = Menu|InGame|Victory|ShowSolution|KeysMenu|SelectMode|Lose
@@ -34,40 +35,37 @@ type Button (label:string, actionCode:ButtonAction) =
 
 type MySoundPlayer () =
     inherit SoundPlayer()
-    member private this.privateSetSounds (status:bool) (loop:bool) (mode:string) soundpaths = match soundpaths with
-                                                                                                |[]-> ()
-                                                                                                |(name,path)::xs -> if (name = mode) then
-                                                                                                                        if(status) then 
-                                                                                                                            this.SoundLocation <- path
-                                                                                                                            this.Load()
+    member private this.privateSetSounds (status:bool) (loop:bool) (mode:SoundpathName) (soundpaths: (SoundpathName * string)list) = match soundpaths with
+                                                                                                                                                    |[]-> ()
+                                                                                                                                                    |(name,path)::xs -> if (name = mode) then
+                                                                                                                                                                            if(status) then 
+                                                                                                                                                                                this.SoundLocation <- path
+                                                                                                                                                                                this.Load()
 
-                                                                                                                            if(loop) then this.PlayLooping() 
-                                                                                                                                        else ()
-                                                                                                                        else this.Stop()
-                                                                                                                    else this.privateSetSounds status loop mode xs
+                                                                                                                                                                                if(loop) then this.PlayLooping() 
+                                                                                                                                                                                            else ()
+                                                                                                                                                                            else this.Stop()
+                                                                                                                                                                        else this.privateSetSounds status loop mode xs
     
-    member this.SetSounds (status:bool) (loop:bool) (mode:string) = this.privateSetSounds status loop mode Config.soundpaths
+    member this.SetSounds (status:bool) (loop:bool) (mode:SoundpathName) = this.privateSetSounds status loop mode soundpaths
 ///Return to menu, Status <- Menu
 let returnToMenu (st:state) (screen:wronly_raster)(sp:MySoundPlayer) =
-    sp.SetSounds false false "Arcade"
-    sp.SetSounds false false "Blind" 
-    sp.SetSounds false false "Timed" 
-    sp.SetSounds true false "Menu" 
+    sp.SetSounds false false SPArcade
+    sp.SetSounds false false SPBlind
+    sp.SetSounds false false SPTimed
+    sp.SetSounds true false SPMenu
     st.player.clear
     st.maze.clear
     st.status <- Status.Menu
     st.menuArrow.drawSprite(pixel.create('>', Color.White))
-    
-    
+
 
 //Draw the buttons on the screen
 let drawButtons (buttonList: Button list) (menuYstart:float) (menuYIncrease:float) (screen:wronly_raster)=
     for i=0 to buttonList.Length - 1 do
         buttonList.[i].Y <- menuYstart + menuYIncrease * float(i)
         screen.draw_text(buttonList.[i].label, 70, int(buttonList.[i].Y), Color.White)
-
-
-            
+      
 
 ///Execute the specific action of the button if it is pressed
 let executeIfButtonPressed (buttonList: Button list) (menuYstart:float) (menuYIncrease:float) (sp: MySoundPlayer) (keyo:ConsoleKeyInfo option) (st:state) (matchPressed: ButtonAction -> unit)=
@@ -97,8 +95,6 @@ let executeIfButtonPressed (buttonList: Button list) (menuYstart:float) (menuYIn
                 then st.menuArrow.y <- 11.
 
 
-
-
 ///Initialize the menu
 let init ()  =
             //Size of the engine window
@@ -110,8 +106,11 @@ let init ()  =
             let endPosition: Vector = new Vector ((W/2)-1,H-4)
 
             //SameDirectionMin and sameDirectionMax are used to set the minimum and the maximum length of the corridors of the maze 
-            let sameDirectionMin = 3
-            let sameDirectionMax = 4
+            let sameDirectionMin = 2
+            let sameDirectionMax = 5
+
+            //If set to true, the maze will have multiple paths to the exit
+            let linkPaths = true;
 
             //MenuYstart sets the initial position of the pointer in the menu, 
             //MenuYIncrease allows you to move to the other buttons of the menu
@@ -135,7 +134,7 @@ let init ()  =
             let engine = new engine (W, H)     
 
             let sp:MySoundPlayer = new MySoundPlayer()                       
-            sp.SetSounds true true "Intro" 
+            sp.SetSounds true true SPIntro 
             
             //Printing the logo of the maze
             Console.ForegroundColor <- ConsoleColor.Green
@@ -174,7 +173,7 @@ let init ()  =
                                 screen.draw_text(Config.menuScreen, 39, 4, Color.Green)
                                 //Draws the main menu options on the screen
                                 drawButtons arr_options menuYstart menuYIncrease screen
-                                sp.SetSounds true false "Menu" 
+                                sp.SetSounds true false SPMenu
                                 executeIfButtonPressed arr_options menuYstart menuYIncrease sp keyo st (fun (buttonAction:ButtonAction) ->
                                     match buttonAction with
                                         ButtonAction.StartGame -> st.status <- Status.SelectMode
@@ -248,7 +247,7 @@ let init ()  =
                          //The player moves only in the corridors not in the walls
                          if not(nextCell.isWall) then st.player.move_by(dx, dy)
                          //If the player position is in the ending position of the maze then the player has won the game 
-                         if(nextCell.position.isSameAs(endPosition)) then sp.SetSounds true true "Victory" 
+                         if(nextCell.position.isSameAs(endPosition)) then sp.SetSounds true true SPVictory
                                                                           st.status <- Status.Victory
                          st, false
                     //If the player wins the game status <- Victory
@@ -264,7 +263,7 @@ let init ()  =
                     elif(st.status = Status.Lose) then
                          screen.draw_text(Config.lose, 5, 0, Color.DarkRed)
                          //Returning to main menu on any key
-                         if(keyo.IsSome) then sp.SetSounds true false "Lose"
+                         if(keyo.IsSome) then sp.SetSounds true false SPLose
                                               sp.Play()
                                               returnToMenu st screen sp
                          st,false
@@ -289,7 +288,7 @@ let init ()  =
                         
                         //If the remaining time (Timed mode) is elapsed the player loses status <- Lose
                         if(remainingTime <= 0) then st.status <- Status.Lose
-                                                    sp.SetSounds true false "Lose"
+                                                    sp.SetSounds true false SPLose
                                                     sp.Play()
                                                     st.maze.clear
                                                     //all sprites in spriteSolution are removed
@@ -303,7 +302,7 @@ let init ()  =
                         st.menuArrow.clear
                         screen.draw_text(Config.instructionMenu, 19, 4, Color.Green)
                         //At any key pressed returning to main menu
-                        if(keyo.IsSome) then sp.SetSounds false false "Intro" 
+                        if(keyo.IsSome) then sp.SetSounds false false SPIntro 
                                              returnToMenu st screen sp
                         st, false
 
@@ -316,25 +315,25 @@ let init ()  =
                         //Draw the game menu buttons on the screen
                         drawButtons modeButtons menuYstart menuYIncrease screen
 
-                        sp.SetSounds true false "Menu" 
+                        sp.SetSounds true false SPMenu
                         //Handling button actions
                         executeIfButtonPressed modeButtons menuYstart menuYIncrease sp keyo st (fun (buttonAction:ButtonAction) ->
                             match buttonAction with
-                                ButtonAction.Arcade -> sp.SetSounds true true "Arcade" 
+                                ButtonAction.Arcade -> sp.SetSounds true true SPArcade 
                                                        st.mode <- Mode.Arcade
                                                        st.status <- Status.InGame                                              
-                                |ButtonAction.Blind -> sp.SetSounds true true "Blind" 
+                                |ButtonAction.Blind -> sp.SetSounds true true SPBlind
                                                        st.mode <- Mode.Blind
                                                        st.status <- Status.InGame
                                                        
-                                |ButtonAction.Timed -> sp.SetSounds true true "Timed" 
+                                |ButtonAction.Timed -> sp.SetSounds true true SPTimed 
                                                        st.mode <- Mode.Timed
                                                        st.status <- Status.InGame
                                                        stopWatch.Restart()
                                                        
                                 |_ -> ignore()
                             //Creating a new instance of Maze
-                            myMaze <- Some(new Maze(W / 2, H-2, startPosition, endPosition, sameDirectionMin, sameDirectionMax))
+                            myMaze <- Some(new Maze(W / 2, H-2, startPosition, endPosition, sameDirectionMin, sameDirectionMax, linkPaths))
                             st.player.drawSprite (pixel.create ('\219',Color.Cyan))
                             //Reset position to the starting position
                             st.player.x <- (float(startPosition.X*2))
@@ -361,4 +360,3 @@ let init ()  =
             engine.show_fps <- false
             //start engine
             engine.loop myLoop st0
-                 
