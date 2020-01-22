@@ -27,9 +27,9 @@ let log_warn_color = Color.Yellow
 let log_error_color = Color.Red
 let log_debug_color = Color.Cyan
 
-//
+
+//List with all the sounds
 type SoundpathName = SPIntro|SPMenu|SPVictory|SPArcade|SPLose|SPBlind|SPTimed
-//List with all the gamepaths
 let soundpaths: (SoundpathName * string)list = [(SPIntro,"..\..\Game_sounds\intro.wav");
                                                 (SPMenu, "..\..\Game_sounds\misc_menu.wav");
                                                 (SPVictory,"..\..\Game_sounds\Victory.wav");
