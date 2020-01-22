@@ -22,10 +22,23 @@ To find the best solution for our multi-path maze, we implemented the [Dijkstra'
 ## Different gamemodes
 There are three different gamemodes:
 1. **Easy** Where the player has to reach the exit of an entirely visible maze
-2. **Blind** In this mode the player has a torch in his hand. The maze is compleately dark and player can light only a small area around him
+2. **Blind** In this mode we simulate that the player has a torch in his hand. The maze is compleately dark and player can light only a small area around him
 3. **Timed** The exit door stays open only for a limited time. The player has to run to reach the exit before the time runs out
 
-In any gamemode, the player can see the solution if stuck, but he loses.
+In any gamemode, the player can see the solution if stuck, however in doing so he loses the game.
 
 ## Musics
 The player can better enjoy the game by turning on the volume. There are different musics for each gamemode and situations.
+
+## File organization
+We have created three new files to organize the code:
+1. `Menu.fs` Handles all the functions releated to menus and user interaction
+2. `MazeGenerator.fs` Contains all the classes needed to the maze, like the `Vector` class for cells position, the `MazeCell` class and the `Maze` class
+3. `Config.fs` Contains the ASCII texts that will be displayed in the game and paths for the sound resources
+
+## Main functions
+Here are listed some of the main functions used in this project
+1. `Menu.init` Called directly from Main.main_game(), it's responsible for inititializing the engine and all his functions. It also contains the settings for the maze generation
+2. `Menu.myLoop` The function called at each engine frame. It handles the various status of the game, like showing the menus, displaying win or lose screen and others. All possible status are listed in `type Status = Menu|InGame|Victory|ShowSolution|KeysMenu|SelectMode|Lose`
+3. `MazeGenerator.Maze.generateMaze` It's the main algorithm that generates the maze. The generated MazeCells are listed in `MazeGenerator.Maze.mutableMaze : MazeCell list`
+4. `MazeGenerator.Maze.weightedSolution` Finds the shortest solution using Dijkstra's algorithm and return it as a MazeCell list

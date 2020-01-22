@@ -1,4 +1,4 @@
-﻿module LabProg2019.menu
+﻿module LabProg2019.Menu
 
 open System
 open Engine
